@@ -77,6 +77,15 @@ jobs:
             marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/fixed --mode fast --force_ocr --debug $PAGE_ARG
           fi
 
+      - name: Checkpoint Commit (Save Raw OCR Progress)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add conversions/issue-${{ github.event.issue.number }}/
+          git commit -m "Checkpoint: Save raw OCR results for issue #${{ github.event.issue.number }} [skip ci]" || echo "No new OCR changes to commit"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
       - name: Triangulate & Align Formatting via Python Chunking
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
@@ -136,7 +145,6 @@ jobs:
               with open(clean_path, 'r', encoding='utf-8') as f:
                   clean_text = f.read()
 
-              # 1. Python breaks document into exact, sequential blocks
               blocks = [b.strip() for b in clean_text.split('\n\n') if b.strip()]
               final_document = []
 
@@ -144,14 +152,16 @@ jobs:
                   print(f"-> Processing Block {i+1}/{len(blocks)}...", flush=True)
                   lines = block.split('\n')
                   
-                  # 2. Python Routing Logic: Is this a table/schedule?
                   list_markers = sum(1 for line in lines if re.match(r'^[\-\*\•\d]', line.strip()))
                   has_times = bool(re.search(r'\d{1,2}:\d{2}\s*(am|pm)', block, re.IGNORECASE))
                   
                   if (list_markers >= 2 and len(lines) >= 3) or (has_times and len(lines) >= 3):
                       print("   [LLM Route] Structural block detected. Converting to table...", flush=True)
                       prompt = f"""Convert this exact text block into a Markdown table (`|---|`). 
-                      CRITICAL: DO NOT add, summarize, or delete any words. Keep the exact text, just map it into columns. Use `<br>` for line breaks in cells.
+                      CRITICAL RULES: 
+                      1. DO NOT add, summarize, or delete any words. Keep the exact text, just map it into columns. 
+                      2. Use `<br>` for line breaks in cells.
+                      3. Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
                       
                       <text>
                       {block}
@@ -163,7 +173,10 @@ jobs:
                   else:
                       print("   [Python Route] Standard text detected. Formatting inline...", flush=True)
                       prompt = f"""Apply bold and italic markdown to this text to make it readable. 
-                      CRITICAL: DO NOT format this as a table. DO NOT add, summarize, or delete any words. Output ONLY the exact text provided, with inline markdown applied.
+                      CRITICAL RULES: 
+                      1. DO NOT format this as a table. 
+                      2. DO NOT add, summarize, or delete any words. Output ONLY the exact text provided, with inline markdown applied.
+                      3. Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
                       
                       <text>
                       {block}
@@ -172,7 +185,7 @@ jobs:
                       res = call_llm(prompt, "Inline Formatter")
                       final_document.append(res.replace('```markdown', '').replace('```', '').strip())
                       
-                  time.sleep(4) # Rate limit pacing
+                  time.sleep(4)
                   
               print(f"\n-> Saving 1:1 aligned markdown to: {output_path}", flush=True)
               with open(output_path, 'w', encoding='utf-8') as f:
@@ -205,6 +218,8 @@ jobs:
 
       - name: Final Commit & Push
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/
           git commit -m "Auto-generate aligned markdown for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main
