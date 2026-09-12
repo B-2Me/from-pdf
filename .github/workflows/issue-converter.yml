@@ -166,13 +166,17 @@ jobs:
                   prompt = f"""You are a precise document reconstruction AI. 
                   Parse the provided text sequentially from top to bottom. Wrap EVERY piece of text in exactly one of these two XML tags:
                   
-                  1. <text_block> : Use this for all standard paragraphs, titles, footers, URLs, and floating text. Apply Markdown formatting (**bold**, *italics*) to emphasize headers or key terms.
-                  2. <table_block is_continuation="true/false"> : Use this ONLY to reconstruct data mapped into columns or schedules. Format the inside as a strict Markdown table (`|---|`). Use `<br>` for line breaks inside cells. Set `is_continuation="true"` ONLY if this table is structurally continuing from the very end of the previous batch.
+                  1. <text_block> : Use this for all standard paragraphs, titles, footers, URLs, and floating text. Apply Markdown formatting (**bold**, *italics*) to emphasize headers.
+                  2. <table_block is_continuation="true/false"> : Use this ONLY to reconstruct data mapped into columns or schedules. Format the inside as a strict Markdown table (`|---|`). Set `is_continuation="true"` ONLY if this table is structurally continuing from the previous batch.
                   
                   CRITICAL RULES:
                   - ZERO text deletion. Every single word from the source must exist in your output.
+                  - NO HTML ALLOWED except `<br>`. Do NOT use `<p>`, `<ul>`, or `<li>` tags. Use standard markdown (`- `) for lists inside and outside tables.
                   - Do NOT nest tags. Close one tag before opening the next.
                   - Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
+                  
+                  STEP 1: Write a <planning> block. Quote the VERY LAST sentence of the source text so you do not forget it.
+                  STEP 2: Generate the XML blocks. The final block MUST contain the exact last sentence you quoted.
                   
                   <source_text>
                   {batch}
@@ -180,7 +184,7 @@ jobs:
                   
                   res = call_llm(prompt, "Sequential Block Parser")
                   
-                  # Extract blocks dynamically in the exact order they appear
+                  # Extract blocks dynamically in the exact order they appear, ignoring the planning block
                   blocks = re.finditer(r'<(text_block|table_block)([^>]*)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
                   
                   for match in blocks:
@@ -193,7 +197,6 @@ jobs:
                       elif tag_name == 'table_block':
                           is_continuation = 'is_continuation="true"' in attributes
                           
-                          # If continuing a table, strip the Markdown header and append the body rows
                           if is_continuation and final_document and '|' in final_document[-1]:
                               lines = content.split('\n')
                               merged_rows = []
