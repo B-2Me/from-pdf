@@ -86,14 +86,14 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Triangulate & Align Formatting via Semantic Parsing
+      - name: Triangulate & Align Formatting via JSON Extraction
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           cat << 'EOF' > align_formatting.py
-          import os, random, sys, time, re, collections
+          import os, random, sys, time, re, collections, json
           from pathlib import Path
           from google import genai
           from openai import OpenAI
@@ -145,73 +145,69 @@ jobs:
               with open(clean_path, 'r', encoding='utf-8') as f:
                   clean_text = f.read()
 
-              # Safely chunk text by paragraphs to respect API context limits
-              paragraphs = clean_text.split('\n\n')
-              batches, current_batch = [], ""
-              for p in paragraphs:
-                  if not p.strip(): continue
-                  if len(current_batch) + len(p) > 6000:
-                      batches.append(current_batch)
-                      current_batch = p
-                  else:
-                      current_batch += "\n\n" + p if current_batch else p
-              if current_batch:
-                  batches.append(current_batch)
-
+              blocks = [b.strip() for b in clean_text.split('\n\n') if b.strip()]
               final_document = []
 
-              for i, batch in enumerate(batches):
-                  print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
+              for i, block in enumerate(blocks):
+                  print(f"-> Processing Block {i+1}/{len(blocks)}...", flush=True)
+                  lines = block.split('\n')
                   
-                  prompt = f"""You are a precise document reconstruction AI. 
-                  Parse the provided text sequentially from top to bottom. Wrap EVERY piece of text in exactly one of these two XML tags:
+                  list_markers = sum(1 for line in lines if re.match(r'^[\-\*\•\d]', line.strip()))
+                  has_times = bool(re.search(r'\d{1,2}:\d{2}\s*(am|pm)', block, re.IGNORECASE))
                   
-                  1. <text_block> : Use this for all standard paragraphs, titles, footers, URLs, and floating text. Apply Markdown formatting (**bold**, *italics*) to emphasize headers.
-                  2. <table_block is_continuation="true/false"> : Use this ONLY to reconstruct data mapped into columns or schedules. Format the inside as a strict Markdown table (`|---|`). Set `is_continuation="true"` ONLY if this table is structurally continuing from the previous batch.
-                  
-                  CRITICAL RULES:
-                  - ZERO text deletion. Every single word from the source must exist in your output.
-                  - NO HTML ALLOWED except `<br>`. Do NOT use `<p>`, `<ul>`, or `<li>` tags. Use standard markdown (`- `) for lists inside and outside tables.
-                  - Do NOT nest tags. Close one tag before opening the next.
-                  - Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
-                  
-                  STEP 1: Write a <planning> block. Quote the VERY LAST sentence of the source text so you do not forget it.
-                  STEP 2: Generate the XML blocks. The final block MUST contain the exact last sentence you quoted.
-                  
-                  <source_text>
-                  {batch}
-                  </source_text>"""
-                  
-                  res = call_llm(prompt, "Sequential Block Parser")
-                  
-                  # Extract blocks dynamically in the exact order they appear, ignoring the planning block
-                  blocks = re.finditer(r'<(text_block|table_block)([^>]*)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
-                  
-                  for match in blocks:
-                      tag_name = match.group(1).lower()
-                      attributes = match.group(2).lower()
-                      content = match.group(3).strip()
+                  if (list_markers >= 2 and len(lines) >= 3) or (has_times and len(lines) >= 3):
+                      print("   [LLM Route] Structural block detected. Converting to table via JSON...", flush=True)
+                      prompt = f"""You are a precise data formatter. Convert the provided text into a Markdown table and extract surrounding text.
                       
-                      if tag_name == 'text_block':
-                          final_document.append(content)
-                      elif tag_name == 'table_block':
-                          is_continuation = 'is_continuation="true"' in attributes
-                          
-                          if is_continuation and final_document and '|' in final_document[-1]:
-                              lines = content.split('\n')
-                              merged_rows = []
-                              passed_separator = False
-                              for line in lines:
-                                  if re.search(r'\|[\s\-\:]+\|', line):
-                                      passed_separator = True
-                                      continue
-                                  if passed_separator and line.strip():
-                                      merged_rows.append(line)
-                              
-                              final_document[-1] += "\n" + "\n".join(merged_rows)
-                          else:
-                              final_document.append(content)
-
+                      CRITICAL RULES:
+                      1. NEVER use HTML tags like `<ul>`, `<li>`, `<p>`, or `<b>`. Use standard Markdown bullet points (`- `) and `<br>` for line breaks inside cells. Use `**` for bolding.
+                      2. Extract any titles or intro sentences into `preceding_text`.
+                      3. Extract any footers, URLs, or notes at the bottom into `trailing_text`. DO NOT delete this text!
+                      4. Output ONLY valid JSON inside a code block.
+                      
+                      ```json
+                      {{
+                        "preceding_text": "...",
+                        "table_markdown": "| Header |...\\n|---|...\\n",
+                        "trailing_text": "..."
+                      }}
+                      ```
+                      
+                      <text>
+                      {block}
+                      </text>"""
+                      
+                      res = call_llm(prompt, "Table Builder (JSON)")
+                      
+                      json_match = re.search(r'```(?:json)?\n(.*?)```', res, re.DOTALL | re.IGNORECASE)
+                      json_str = json_match.group(1).strip() if json_match else res.strip()
+                      
+                      try:
+                          data = json.loads(json_str)
+                          if data.get("preceding_text"): final_document.append(data["preceding_text"].strip())
+                          if data.get("table_markdown"): final_document.append(data["table_markdown"].strip())
+                          if data.get("trailing_text"): 
+                              final_document.append(data["trailing_text"].strip())
+                              print(f"      [🔍 SAVED ORPHAN TEXT]: '{data['trailing_text'][:50]}...'")
+                      except Exception as e:
+                          print(f"   [⚠️ JSON Parse Failed: {e}] Falling back to raw string regex.")
+                          md = re.search(r'```(?:markdown)?\n(.*?)\n```', res, re.DOTALL)
+                          final_document.append(md.group(1).strip() if md else res.strip())
+                  else:
+                      print("   [Python Route] Standard text detected. Formatting inline...", flush=True)
+                      prompt = f"""Apply bold and italic markdown to this text to make it readable. 
+                      CRITICAL RULES: 
+                      1. DO NOT format this as a table. 
+                      2. DO NOT add, summarize, or delete any words. Output ONLY the exact text provided, with inline markdown applied.
+                      3. NO HTML ALLOWED. Do not use `<p>`, `<ul>`, or `<li>`. Use standard markdown.
+                      
+                      <text>
+                      {block}
+                      </text>"""
+                      
+                      res = call_llm(prompt, "Inline Formatter")
+                      final_document.append(res.replace('```markdown', '').replace('```', '').strip())
+                      
                   time.sleep(4)
                   
               print(f"\n-> Saving aligned markdown to: {output_path}", flush=True)
