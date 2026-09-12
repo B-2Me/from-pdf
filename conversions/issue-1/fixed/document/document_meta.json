@@ -1,347 +1,94 @@
 {
   "table_of_contents": [
     {
-      "title": "INTRODUCTION",
+      "title": "Nighttime Practice for Lucid Dreams",
       "heading_level": null,
-      "page_id": 1,
+      "page_id": 0,
       "polygon": [
         [
-          135.168,
-          33.59999901199341
+          206.856,
+          56.232
         ],
         [
-          244.608,
-          33.59999901199341
+          402.08400000000006,
+          56.232
         ],
         [
-          244.608,
-          44.399998694419864
+          402.08400000000006,
+          70.488
         ],
         [
-          135.168,
-          44.399998694419864
+          206.856,
+          70.488
         ]
       ]
     },
     {
-      "title": "CHAPTER I",
+      "title": "Requirements:",
       "heading_level": null,
-      "page_id": 7,
+      "page_id": 0,
       "polygon": [
         [
-          151.296,
-          20.999999382495883
+          61.2,
+          138.6
         ],
         [
-          227.712,
-          20.999999382495883
+          143.20800000000003,
+          138.6
         ],
         [
-          227.712,
-          32.399999047279366
+          143.20800000000003,
+          152.06400000000002
         ],
         [
-          151.296,
-          32.399999047279366
+          61.2,
+          152.06400000000002
+        ]
+      ]
+    },
+    {
+      "title": "Optional:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          369.64799999999997,
+          138.6
+        ],
+        [
+          423.5039999999999,
+          138.6
+        ],
+        [
+          423.5039999999999,
+          152.06400000000002
+        ],
+        [
+          369.64799999999997,
+          152.06400000000002
         ]
       ]
     }
   ],
   "page_stats": [
     {
-      "page_id": 1,
+      "page_id": 0,
       "text_extraction_method": "surya",
       "block_counts": [
         [
           "SectionHeader",
-          2
+          4
         ],
         [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 2,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 3,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
+          "ListGroup",
+          4
         ],
-        [
-          "Picture",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 4,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ],
-        [
-          "Picture",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 5,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          6
-        ],
-        [
-          "Picture",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 6,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Picture",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 7,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "SectionHeader",
-          2
-        ],
-        [
-          "Text",
-          2
-        ],
-        [
-          "PageHeader",
-          1
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 8,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 9,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 10,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 11,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 12,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          11
-        ],
-        [
-          "Picture",
-          2
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 13,
-      "text_extraction_method": "surya",
-      "block_counts": [
         [
           "Text",
           3
         ],
         [
-          "Picture",
-          1
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 14,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          9
-        ]
-      ],
-      "block_metadata": {
-        "llm_request_count": 0,
-        "llm_error_count": 0,
-        "llm_tokens_used": 0,
-        "previous_text": "",
-        "previous_type": "",
-        "previous_order": 0
-      }
-    },
-    {
-      "page_id": 15,
-      "text_extraction_method": "surya",
-      "block_counts": [
-        [
-          "Text",
-          2
-        ],
-        [
-          "Picture",
+          "Table",
           2
         ]
       ],
