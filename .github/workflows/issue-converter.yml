@@ -77,14 +77,14 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Triangulate & Align Formatting via Semantic Parsing
+      - name: Triangulate & Align Formatting via Smart Splitter
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           cat << 'EOF' > align_formatting.py
-          import os, random, sys, time, re, collections
+          import os, random, sys, time, re, collections, json
           from google import genai
           from openai import OpenAI
 
@@ -131,55 +131,76 @@ jobs:
               with open(clean_path, 'r', encoding='utf-8') as f:
                   raw_text = f.read()
 
-              paragraphs = raw_text.split('\n\n')
-              batches, current_batch = [], ""
-              for p in paragraphs:
-                  if not p.strip(): continue
-                  if len(current_batch) + len(p) > 6000:
-                      batches.append(current_batch)
-                      current_batch = p
-                  else:
-                      current_batch += "\n\n" + p if current_batch else p
-              if current_batch:
-                  batches.append(current_batch)
-
+              print("-> [Pass 1] Semantic Segmentation...", flush=True)
+              segmentation_prompt = f"""You are a precise document segmentation AI. Divide the provided text into logical, standalone structural chunks.
+              
+              CRITICAL RULES:
+              1. Output MUST be a JSON array of strings.
+              2. Do NOT add, modify, or delete a single character. Every character from the source text must be accounted for within the strings.
+              3. Split the text strictly at structural boundaries (e.g., between a standard paragraph and a schedule, or between a list and a footer).
+              
+              Example Output:
+              ```json
+              [
+                "**Requirements:**\\n- Dream journal and pen\\n- 2 alarm clocks",
+                "A. Prepare (30 minutes)\\n10:30pm\\nSetup 2 alarms...",
+                "Optional: Send me your feedback, questions, or dream experience: [www.YouCanLucidDream.com/contact](https://www.YouCanLucidDream.com/contact)"
+              ]
+              ```
+              
+              <source_document>
+              {raw_text}
+              </source_document>"""
+              
+              seg_res = call_llm(segmentation_prompt, "Document Splitter")
+              json_match = re.search(r'```(?:json)?\n(.*?)```', seg_res, re.DOTALL | re.IGNORECASE)
+              json_str = json_match.group(1).strip() if json_match else seg_res.strip()
+              
+              try:
+                  chunks = json.loads(json_str)
+              except Exception as e:
+                  print(f"   [⚠️ JSON Parse Failed: {e}] Falling back to naive Python split.", flush=True)
+                  chunks = [c.strip() for c in raw_text.split('\n\n') if c.strip()]
+                  
               final_document = []
-
-              for i, batch in enumerate(batches):
-                  print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
-                  prompt = f"""You are a strict document parser. Completely reformat the provided document sequentially from top to bottom.
+              
+              print("\n-> [Pass 2] Targeted Formatting...", flush=True)
+              for i, chunk in enumerate(chunks):
+                  print(f"   Processing Chunk {i+1}/{len(chunks)}...", flush=True)
                   
-                  CRITICAL FAILURE MODE AWARENESS:
-                  When formatting tables, AIs frequently and accidentally delete the non-tabular text immediately following the table (such as footnotes, URLs, contact info, or trailing paragraphs). You MUST explicitly scan the text at the bottom of tables to ensure no text is accidentally omitted from your output.
+                  list_markers = sum(1 for line in chunk.split('\n') if re.match(r'^[\-\*\•\d]', line.strip()))
+                  has_times = bool(re.search(r'\d{1,2}:\d{2}\s*(am|pm)', chunk, re.IGNORECASE))
                   
-                  CRITICAL RULES:
-                  1. ZERO DATA LOSS: Every single word from the source must survive.
-                  2. STRICT MARKDOWN: Inside `<table_block>`, you may ONLY use `|---|` syntax, `- ` for lists, and `<br>` for newlines.
-                  3. ABSOLUTELY NO HTML: Do NOT use `<ul>`, `<li>`, `<p>`, or `<b>` tags anywhere. Apply Markdown bolding (`**`) instead.
-                  4. Convert broken math into LaTeX ($...$ or $$...$$).
-                  
-                  OUTPUT FORMAT:
-                  Wrap the document sequentially using ONLY these two XML tags:
-                  <text_block>
-                  (For all standard paragraphs, headers, and text immediately preceding or following tables)
-                  </text_block>
-                  
-                  <table_block>
-                  (For strictly formatted Markdown tables)
-                  </table_block>
-                  
-                  <source_document>
-                  {batch}
-                  </source_document>"""
-                  
-                  res = call_llm(prompt, "Full Document Sequential Parser")
-                  
-                  blocks = re.finditer(r'<(text_block|table_block)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
-                  for match in blocks:
-                      content = match.group(2).strip()
-                      if content: final_document.append(content)
-
-                  time.sleep(4)
+                  if (list_markers >= 2 and len(chunk.split('\n')) >= 3) or (has_times and len(chunk.split('\n')) >= 3):
+                      prompt = f"""Convert this exact text block into a Markdown table (`|---|`). 
+                      CRITICAL RULES: 
+                      1. DO NOT add, summarize, or delete any words. Keep the exact text, just map it into columns. 
+                      2. Use `<br>` for line breaks in cells.
+                      3. Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
+                      4. Output ONLY the table.
+                      
+                      <text>
+                      {chunk}
+                      </text>"""
+                      
+                      res = call_llm(prompt, "Table Builder")
+                      md = re.search(r'```(?:markdown)?\n(.*?)\n```', res, re.DOTALL)
+                      final_document.append(md.group(1).strip() if md else res.strip())
+                  else:
+                      prompt = f"""Apply bold and italic markdown to this text to make it readable. 
+                      CRITICAL RULES: 
+                      1. DO NOT format this as a table. 
+                      2. DO NOT add, summarize, or delete any words. Output ONLY the exact text provided, with inline markdown applied.
+                      3. Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
+                      
+                      <text>
+                      {chunk}
+                      </text>"""
+                      
+                      res = call_llm(prompt, "Inline Formatter")
+                      final_document.append(res.replace('```markdown', '').replace('```', '').strip())
+                      
+                  time.sleep(2) # Prevent rapid-fire rate limiting
 
               print(f"\n-> Saving aligned markdown to: {output_path}", flush=True)
               with open(output_path, 'w', encoding='utf-8') as f:
