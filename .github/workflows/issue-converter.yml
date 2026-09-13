@@ -77,14 +77,14 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Triangulate & Align Formatting via Surgical Table Injection
+      - name: Triangulate & Align Formatting via Semantic Anchoring
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
           cat << 'EOF' > align_formatting.py
-          import os, random, sys, time, re, collections, json
+          import os, random, sys, time, re, collections
           from google import genai
           from openai import OpenAI
 
@@ -127,80 +127,67 @@ jobs:
               print("\n❌ FATAL: All models exhausted.", flush=True)
               sys.exit(1)
 
-          def find_span(text, start_q, end_q):
-              start_words = [re.escape(w) for w in start_q.split()[:10] if w.strip()]
-              end_words = [re.escape(w) for w in end_q.split()[-10:] if w.strip()]
-              if not start_words or not end_words: return -1, -1
-              
-              start_pattern = r'\s+'.join(start_words)
-              end_pattern = r'\s+'.join(end_words)
-              
-              s_match = re.search(start_pattern, text, re.IGNORECASE)
-              if not s_match: return -1, -1
-              start_idx = s_match.start()
-              
-              e_match = re.search(end_pattern, text[start_idx:], re.IGNORECASE)
-              if not e_match: return -1, -1
-              end_idx = start_idx + e_match.end()
-              
-              return start_idx, end_idx
-
           def process_document(clean_path, output_path, summary_path):
               with open(clean_path, 'r', encoding='utf-8') as f:
                   raw_text = f.read()
 
-              print("-> [Pass 1] Surgical Table Extraction...", flush=True)
-              prompt = f"""You are a precise data-extraction AI. Look at the document below. 
-              Find ANY complex schedules, data mappings, or multi-column lists that should be formatted as a Markdown table.
-              
-              For each table you identify, output a JSON object containing:
-              1. "start_quote": The EXACT first 6-8 words from the raw text where the table data begins.
-              2. "end_quote": The EXACT last 6-8 words from the raw text where the table data ends.
-              3. "table_markdown": The fully reconstructed Markdown table (`|---|`). Use `- ` for lists inside cells and `<br>` for line breaks.
-              
-              CRITICAL RULES:
-              - DO NOT include standard paragraphs, footers, or contact info in your extraction! Python will use your quotes to swap the table in, leaving the rest of the text untouched.
-              - Output ONLY a JSON array of objects.
-              
-              ```json
-              [
-                {{
-                  "start_quote": "A. Prepare (30 minutes) Setup",
-                  "end_quote": "with someone this morning. 7:00 am",
-                  "table_markdown": "| Phase | Actions |..."
-                }}
-              ]
-              ```
-              
-              <document>
-              {raw_text}
-              </document>"""
-              
-              res = call_llm(prompt, "Table Extraction")
-              json_match = re.search(r'```(?:json)?\n(.*?)```', res, re.DOTALL | re.IGNORECASE)
-              json_str = json_match.group(1).strip() if json_match else res.strip()
-              
-              final_text = raw_text
-              try:
-                  tables = json.loads(json_str)
-                  for idx, tbl in enumerate(tables):
-                      sq = tbl.get("start_quote", "").strip()
-                      eq = tbl.get("end_quote", "").strip()
-                      md = tbl.get("table_markdown", "").strip()
-                      
-                      if sq and eq and md:
-                          start_idx, end_idx = find_span(final_text, sq, eq)
-                          if start_idx != -1 and end_idx != -1:
-                              final_text = final_text[:start_idx] + "\n\n" + md + "\n\n" + final_text[end_idx:]
-                              print(f"   [✅ INJECTED TABLE {idx+1}] Swapped raw text with table.", flush=True)
-                          else:
-                              print(f"   [⚠️ ANCHORS NOT FOUND]: sq='{sq}', eq='{eq}'", flush=True)
-              except Exception as e:
-                  print(f"   [⚠️ JSON Parse Failed: {e}]", flush=True)
+              paragraphs = raw_text.split('\n\n')
+              batches, current_batch = [], ""
+              for p in paragraphs:
+                  if not p.strip(): continue
+                  if len(current_batch) + len(p) > 6000:
+                      batches.append(current_batch)
+                      current_batch = p
+                  else:
+                      current_batch += "\n\n" + p if current_batch else p
+              if current_batch:
+                  batches.append(current_batch)
+
+              final_document = []
+
+              for i, batch in enumerate(batches):
+                  print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
+                  prompt = f"""You are a strict document parser. Completely reformat the provided document sequentially from top to bottom.
+                  
+                  CRITICAL RULES:
+                  1. ZERO DATA LOSS: Every single word, trailing footer, and URL must survive.
+                  2. STRICT MARKDOWN: Inside `<table_block>`, you may ONLY use `|---|` syntax, `- ` for lists, and `<br>` for newlines.
+                  3. ABSOLUTELY NO HTML: Do NOT use `<ul>`, `<li>`, `<p>`, or `<b>` tags anywhere. Apply Markdown bolding (`**`) instead.
+                  4. Convert broken math into LaTeX ($...$ or $$...$$).
+                  
+                  REQUIRED OUTPUT SEQUENCE:
+                  <last_sentence_check>
+                  (Quote the exact final 15 words of the document here to anchor your memory)
+                  </last_sentence_check>
+                  
+                  <text_block>
+                  (Standard paragraphs, lists, and headers perfectly formatted in Markdown)
+                  </text_block>
+                  
+                  <table_block>
+                  (Formatted Markdown tables)
+                  </table_block>
+                  
+                  <text_block>
+                  (Trailing footers, contact info, or orphaned text)
+                  </text_block>
+                  
+                  <source_document>
+                  {batch}
+                  </source_document>"""
+                  
+                  res = call_llm(prompt, "Full Document Anchor Parser")
+                  
+                  blocks = re.finditer(r'<(text_block|table_block)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
+                  for match in blocks:
+                      content = match.group(2).strip()
+                      if content: final_document.append(content)
+
+                  time.sleep(4)
 
               print(f"\n-> Saving aligned markdown to: {output_path}", flush=True)
               with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write(final_text.strip())
+                  f.write('\n\n'.join(final_document))
                   
               with open(summary_path, 'w', encoding='utf-8') as f:
                   f.write("### 🤖 Model Usage Summary\n")
