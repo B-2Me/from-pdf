@@ -77,7 +77,7 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Triangulate & Align Formatting via Cognitive Scratchpad
+      - name: Triangulate & Align Formatting via Semantic Parsing
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -131,7 +131,6 @@ jobs:
               with open(clean_path, 'r', encoding='utf-8') as f:
                   raw_text = f.read()
 
-              # Batch by max token length (6000 chars) to ensure a 1-page PDF is 1 API call
               paragraphs = raw_text.split('\n\n')
               batches, current_batch = [], ""
               for p in paragraphs:
@@ -148,31 +147,37 @@ jobs:
 
               for i, batch in enumerate(batches):
                   print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
-                  prompt = f"""You are an expert document reconstruction AI. Your task is to reformat the provided OCR text into beautiful, structured Markdown.
+                  prompt = f"""You are a precise document reconstruction AI. 
+
+                  AIs frequently suffer from "attention decay" when building complex tables and accidentally drop the final paragraphs, footers, or URLs of a document. To prevent this, you MUST explicitly analyze the boundaries of the text before formatting.
 
                   CRITICAL RULES:
-                  1. ZERO DATA LOSS: You must include every single word from the source text. Trailing footnotes, URLs, and contact info at the very bottom are frequently lost—you MUST preserve them.
-                  2. STRICT MARKDOWN ONLY: You are absolutely forbidden from using HTML tags like `<ul>`, `<li>`, `<p>`, or `<b>`. Use standard Markdown (`-` for lists, `**` for bold). The ONLY permitted HTML is `<br>` strictly inside table cells.
-                  3. MATH: Convert pseudo-LaTeX or broken math into standard LaTeX equations ($...$ or $$...$$).
+                  1. ZERO DATA LOSS: Every single word from the source must exist in your output.
+                  2. STRICT MARKDOWN ONLY: Inside `<table_block>`, use ONLY `|---|` syntax, `- ` for lists, and `<br>` for newlines. ABSOLUTELY NO HTML tags like `<ul>`, `<li>`, `<p>`, or `<b>`.
+                  3. Convert broken math into LaTeX ($...$ or $$...$$).
 
                   REQUIRED OUTPUT FORMAT:
-                  You must process the text sequentially and output ONLY the following XML blocks:
 
-                  <scratchpad>
-                  1. Quote the EXACT last 15 words of the source text to anchor your memory.
-                  2. Outline the sections you see (e.g., "Intro paragraph, bulleted list, schedule table, trailing footer").
-                  3. Explicitly state: "I will not use HTML tags. I will preserve the final sentence."
-                  </scratchpad>
+                  <analysis>
+                  1. Exact FIRST 20 words of the source text: "..."
+                  2. Exact LAST 30 words of the source text: "..."
+                  3. Content evaluation: What is the text at the very bottom? Is it a URL, contact info, or a footer? Explicitly write it out here so you do not forget to include it after the table.
+                  4. Explicitly state: "I will not use HTML tags in my tables. I will preserve the final sentence."
+                  </analysis>
 
+                  <formatted_document>
                   <text_block>
-                  (Standard paragraphs, lists, headers, and trailing footers formatted purely in Markdown)
+                  (Standard paragraphs, headers, and text immediately preceding tables)
                   </text_block>
-
+                  
                   <table_block is_continuation="false">
-                  (Reconstructed schedules or mapped data as a strict Markdown table `|---|`. Set `is_continuation="true"` ONLY if continuing a table from the previous batch)
+                  (Formatted Markdown table. NO HTML ALLOWED.)
                   </table_block>
-
-                  (Use as many <text_block> and <table_block> tags as needed, alternating as the document dictates. Do not nest them. The final tag MUST contain the trailing text you quoted in the scratchpad.)
+                  
+                  <text_block>
+                  (Ensure the trailing footers and URLs identified in your analysis are placed here!)
+                  </text_block>
+                  </formatted_document>
 
                   <source_text>
                   {batch}
@@ -180,7 +185,6 @@ jobs:
                   
                   res = call_llm(prompt, "Full Document Anchor Parser")
                   
-                  # Regex ignores the <scratchpad> and only extracts the final markdown blocks
                   blocks = re.finditer(r'<(text_block|table_block)([^>]*)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
                   for match in blocks:
                       tag_name = match.group(1).lower()
