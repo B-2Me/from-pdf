@@ -1,0 +1,195 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Lorem ipsum",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          202.895,
+          69.886
+        ],
+        [
+          381.99,
+          69.886
+        ],
+        [
+          381.99,
+          99.35599999999998
+        ],
+        [
+          202.895,
+          99.35599999999998
+        ]
+      ]
+    },
+    {
+      "title": "Cras fringilla ipsum magna, in fringilla dui commodo a.",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          57.12,
+          303.11999999999995
+        ],
+        [
+          524.79,
+          303.11999999999995
+        ],
+        [
+          524.79,
+          344.37799999999993
+        ],
+        [
+          57.12,
+          344.37799999999993
+        ]
+      ]
+    },
+    {
+      "title": "Maecenas mauris lectus, lobortis et purus mattis, blandit dictum tellus.",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          73.185,
+          282.91200000000003
+        ],
+        [
+          507.53499999999997,
+          282.91200000000003
+        ],
+        [
+          507.53499999999997,
+          318.276
+        ],
+        [
+          73.185,
+          318.276
+        ]
+      ]
+    },
+    {
+      "title": "In eleifend velit vitae libero sollicitudin euismod.",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          73.185,
+          520.356
+        ],
+        [
+          442.08500000000004,
+          520.356
+        ],
+        [
+          442.08500000000004,
+          537.196
+        ],
+        [
+          73.185,
+          537.196
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          6
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "Figure",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Table",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          10
+        ],
+        [
+          "SectionHeader",
+          5
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Picture",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/document"
+}
