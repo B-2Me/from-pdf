@@ -28,8 +28,10 @@ jobs:
 
       - name: Install Dependencies & Download llama.cpp
         run: |
-          pip install .
-          sudo apt-get install -y zip unzip
+          # Added poppler-utils for pdftoppm (PDF to Image conversion) and explicit openai package
+          sudo apt-get update
+          sudo apt-get install -y zip unzip poppler-utils
+          pip install . openai
           
           wget "https://github.com/ggml-org/llama.cpp/releases/download/b10809/llama-b10809-bin-ubuntu-x64.tar.gz" -O llama.tar.gz
           sudo mkdir -p /opt/llama_bin
@@ -45,6 +47,9 @@ jobs:
           PDF_URL=$(echo "${{ github.event.issue.body }}" | grep -oP 'https://github\.com/user-attachments/(files|assets)/[^)]+\.pdf' | head -n 1)
           if [ -z "$PDF_URL" ]; then exit 1; fi
           curl -L -o document.pdf "$PDF_URL"
+          
+          # Convert PDF to a single image for the Vision model
+          pdftoppm -png -singlefile -r 150 document.pdf page
 
       - name: Parse Commands
         run: |
@@ -58,215 +63,114 @@ jobs:
             echo "PAGE_ARG=" >> $GITHUB_ENV
           fi
 
-      - name: Convert PDF (Raw Text for Python Pipeline)
+      - name: Pipeline 1 | Pure Vision Model (Ling 3.0 Flash VL)
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          mkdir -p conversions/issue-${{ github.event.issue.number }}/raw_text
-          marker_single document.pdf \
-            --output_dir conversions/issue-${{ github.event.issue.number }}/raw_text \
-            --mode fast --force_ocr \
-            --keep_pagefooter_in_output --keep_pageheader_in_output \
-            $PAGE_ARG
-
-      - name: Convert PDF (Marker Native LLM Pipeline)
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          mkdir -p conversions/issue-${{ github.event.issue.number }}/native_llm
-          marker_single document.pdf \
-            --output_dir conversions/issue-${{ github.event.issue.number }}/native_llm \
-            --mode fast --force_ocr --debug \
-            --keep_pagefooter_in_output --keep_pageheader_in_output \
-            --use_llm \
-            --llm_service marker.services.openrouter.OpenRouterService \
-            --openrouter_model "nvidia/nemotron-3-ultra-550b-a55b:free" \
-            $PAGE_ARG
-
-      - name: Triangulate & Align Formatting via Python
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
-          cat << 'EOF' > align_formatting.py
-          import os, random, sys, time, re, collections
-          from google import genai
+          mkdir -p conversions/issue-${{ github.event.issue.number }}
+          cat << 'EOF' > run_vision.py
+          import base64, os, sys
           from openai import OpenAI
 
-          model_usage_stats = collections.defaultdict(int)
-          disabled_providers = set()
+          client = OpenAI(
+              base_url="https://openrouter.ai/api/v1",
+              api_key=os.environ.get("OPENROUTER_API_KEY"),
+          )
 
-          def call_llm(prompt, pass_name):
-              global model_usage_stats, disabled_providers
-              models = [
-                  {'provider': 'openrouter', 'model': 'nvidia/nemotron-3-ultra-550b-a55b:free'},
-                  {'provider': 'google', 'model': 'gemini-3.5-flash-lite'}
-              ]
-              for cfg in models:
-                  provider, model_name = cfg['provider'], cfg['model']
-                  if provider in disabled_providers: continue
-                  attempt, max_retries, delay = 1, 3, 5
-                  while attempt <= max_retries:
-                      try:
-                          if provider == 'google':
-                              client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
-                              res = client.models.generate_content(model=model_name, contents=prompt).text
-                          elif provider == 'openrouter':
-                              client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ.get("OPENROUTER_API_KEY"))
-                              res = client.chat.completions.create(model=model_name, messages=[{"role": "user", "content": prompt}]).choices[0].message.content
-                          if res:
-                              model_usage_stats[model_name] += 1
-                              return res
-                      except Exception as e:
-                          error_str = str(e)
-                          if any(err in error_str for err in ['403', 'PERMISSION_DENIED', '401']):
-                              disabled_providers.add(provider)
-                              break 
-                          if '404' in error_str: break 
-                          if any(err in error_str for err in ['429', 'RESOURCE_EXHAUSTED', 'RateLimit']): time.sleep(15.0)
-                          else:
-                              time.sleep(delay + random.uniform(0.5, 2.0))
-                              delay = min(delay * 2, 60)
-                      attempt += 1
-              print("\n❌ FATAL: All models exhausted.", flush=True)
-              sys.exit(1)
-
-          def process_document(clean_path, output_path, summary_path):
-              with open(clean_path, 'r', encoding='utf-8') as f:
-                  raw_text = f.read()
-
-              paragraphs = raw_text.split('\n\n')
-              batches, current_batch = [], ""
-              for p in paragraphs:
-                  if not p.strip(): continue
-                  if len(current_batch) + len(p) > 6000:
-                      batches.append(current_batch)
-                      current_batch = p
-                  else:
-                      current_batch += "\n\n" + p if current_batch else p
-              if current_batch:
-                  batches.append(current_batch)
-
-              final_document = []
-
-              for i, batch in enumerate(batches):
-                  print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
-                  prompt = f"""You are an expert document reconstruction AI. Reformat the OCR text sequentially from top to bottom into pristine Markdown.
-
-                  CRITICAL RULES:
-                  1. ZERO DATA LOSS: Every single word from the source must exist in your output.
-                  2. STRICT MARKDOWN ONLY: Inside `<table_block>`, use ONLY `|---|` syntax, `- ` for lists, and `<br>` for newlines. ABSOLUTELY NO HTML tags like `<ul>`, `<li>`, `<p>`, or `<b>`.
-
-                  REQUIRED OUTPUT FORMAT:
-                  <text_block>
-                  (Standard paragraphs, headers, and trailing footers perfectly formatted in Markdown)
-                  </text_block>
-                  
-                  <table_block is_continuation="false">
-                  (Strict Markdown table. NO HTML ALLOWED.)
-                  </table_block>
-
-                  <source_text>
-                  {batch}
-                  </source_text>"""
-                  
-                  res = call_llm(prompt, "Full Document Sequential Parser")
-                  
-                  blocks = re.finditer(r'<(text_block|table_block)([^>]*)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
-                  for match in blocks:
-                      tag_name = match.group(1).lower()
-                      attributes = match.group(2).lower()
-                      content = match.group(3).strip()
-                      
-                      if tag_name == 'text_block':
-                          final_document.append(content)
-                      elif tag_name == 'table_block':
-                          is_continuation = 'is_continuation="true"' in attributes
-                          if is_continuation and final_document and '|' in final_document[-1]:
-                              lines = content.split('\n')
-                              merged_rows = []
-                              passed_separator = False
-                              for line in lines:
-                                  if re.search(r'\|[\s\-\:]+\|', line):
-                                      passed_separator = True
-                                      continue
-                                  if passed_separator and line.strip():
-                                      merged_rows.append(line)
-                              final_document[-1] += "\n" + "\n".join(merged_rows)
-                          else:
-                              final_document.append(content)
-                  time.sleep(4)
-
-              final_md_text = '\n\n'.join(final_document)
-
-              # ==========================================
-              # THE DETERMINISTIC SAFETY NET
-              # ==========================================
-              raw_lines = [line.strip() for line in raw_text.strip().split('\n') if line.strip()]
-              last_raw_line = raw_lines[-1] if raw_lines else ""
+          try:
+              with open("page.png", "rb") as image_file:
+                  b64_image = base64.b64encode(image_file.read()).decode("utf-8")
               
-              if last_raw_line and last_raw_line.lower() not in final_md_text.lower():
-                  print(f"\n   [🛡️ SAFETY NET ACTIVATED] AI dropped the footer. Appending: '{last_raw_line}'", flush=True)
-                  final_md_text += f"\n\n{last_raw_line}"
+              prompt = """Transcribe this document page into clean Markdown. 
+              Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
+              Do NOT use HTML tags (no <ul>, <li>, <p>). 
+              Ensure every header, bullet point, footnote, and footer link at the bottom is fully captured."""
 
-              print(f"\n-> Saving aligned markdown to: {output_path}", flush=True)
-              with open(output_path, 'w', encoding='utf-8') as f:
-                  f.write(final_md_text)
-                  
-              with open(summary_path, 'w', encoding='utf-8') as f:
-                  f.write("### 🤖 Model Usage Summary\n")
-                  for m, count in model_usage_stats.items():
-                      f.write(f"- **{m}**: {count} successful calls\n")
-
-          if __name__ == "__main__":
-              issue_num = sys.argv[1]
-              process_document(
-                  f"conversions/issue-{issue_num}/raw_text/document/document.md",
-                  f"conversions/issue-{issue_num}/document_our_pipeline.md",
-                  f"conversions/issue-{issue_num}/model_summary.md"
+              response = client.chat.completions.create(
+                  model="inclusionai/ling-3.0-flash-vl:free",
+                  messages=[
+                      {
+                          "role": "user",
+                          "content": [
+                              {"type": "text", "text": prompt},
+                              {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
+                          ]
+                      }
+                  ]
               )
+              
+              with open(sys.argv[1], "w", encoding="utf-8") as f:
+                  f.write(response.choices[0].message.content)
+              print("✅ Vision model transcription saved.", flush=True)
+          except Exception as e:
+              print(f"❌ Vision model failed: {e}", flush=True)
           EOF
-          
-          python align_formatting.py ${{ github.event.issue.number }}
+          python run_vision.py conversions/issue-${{ github.event.issue.number }}/document_vision_ling_flash.md
+
+      - name: Pipeline 2 | Marker Base OCR (No LLM)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/base \
+            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output $PAGE_ARG
+          cp conversions/issue-${{ github.event.issue.number }}/base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_base.md
+
+      - name: Pipeline 3 | Marker Native LLM Correction
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_BASE_URL: "https://openrouter.ai/api/v1"
+        run: |
+          # Marker supports OpenAI-compatible endpoints natively, allowing us to route to OpenRouter
+          marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/native_llm \
+            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output \
+            --use_llm --llm_service marker.services.openai.OpenAIService \
+            --openai_model "nvidia/nemotron-3-ultra-550b-a55b:free" \
+            $PAGE_ARG || echo "Marker Native LLM failed"
+            
+          if [ -f conversions/issue-${{ github.event.issue.number }}/native_llm/document/document.md ]; then
+            cp conversions/issue-${{ github.event.issue.number }}/native_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_native_llm.md
+          fi
 
       - name: Package for Obsidian
         run: |
           cd conversions/issue-${{ github.event.issue.number }}
-          cp native_llm/document/document.md document_marker_native.md || echo "Marker native failed"
-          
           mkdir -p obsidian_ready
-          cp document_our_pipeline.md obsidian_ready/
-          cp document_marker_native.md obsidian_ready/
-          
-          find raw_text/document/ -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \;
+          cp document_*.md obsidian_ready/ 2>/dev/null || true
+          find base/document/ -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \; 2>/dev/null || true
           zip -r obsidian_ready.zip obsidian_ready/
-          zip -r debug_archive.zip raw_text/ native_llm/ ../../align_formatting.py
+          zip -r debug_archive.zip base/ native_llm/ 2>/dev/null || true
 
       - name: Final Commit & Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/
-          git commit -m "Auto-generate comparison markdown for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
+          git commit -m "Generate 3-way architectural bake-off for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Post Direct Download Links
+      - name: Post Comparison Download Links
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const issueNum = context.issue.number;
             const dir = `conversions/issue-${issueNum}`;
-            let modelSummary = fs.existsSync(`${dir}/model_summary.md`) 
-              ? fs.readFileSync(`${dir}/model_summary.md`, 'utf8') 
-              : "_Model tracking information unavailable._";
-            
+
+            const files = fs.readdirSync(dir)
+              .filter(f => f.startsWith('document_') && f.endsWith('.md'))
+              .sort();
+
+            let fileLinks = files.map(f => {
+              const label = f.replace('document_', '').replace('.md', '');
+              return `- 📄 **${label}**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/${f})`;
+            }).join('\n');
+
             await github.rest.issues.createComment({
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Alignment Complete!**\n\n${modelSummary}\n\n### 🔬 Output Files (Tap to Review):\n- 📄 **Custom Python Pipeline**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/document_our_pipeline.md)\n- 📄 **Marker Native LLM**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/document_marker_native.md)\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Architectural Bake-Off Complete!**\n\n### 🔬 Output Files (Tap to Review):\n${fileLinks}\n\n📚 **Obsidian Vault (All Variants Included):** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
