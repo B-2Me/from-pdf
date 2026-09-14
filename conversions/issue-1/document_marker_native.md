@@ -1,14 +1,14 @@
-## Nighttime Practice for Lucid Dreams
+# Nighttime Practice for Lucid Dreams
 
 To begin, first schedule which night(s) you can devote at least 8 hours to complete this dream technique. Then Follow the sequence listed below. You can adjust the example times given based on what works for your schedule. If you can go to bed earlier, or sleep in later than can help.
 
-**Requirements:**
+## Requirements:
 
 - • Dream journal and pen
 - • 2 alarm clocks
 - • At least 8 hours of time in bed.
 
-**Optional:**
+## Optional:
 
 - • Dream Supplement or Tea
 - • Ear Plugs
@@ -22,3 +22,6 @@ To begin, first schedule which night(s) you can devote at least 8 hours to compl
 | <p><b>D. Sleep and Dream (between 30 minutes and 2 hours)</b></p> <ul style="list-style-type: none;"> <li>• If you are in a place that may get noisy or bright use ear plugs and a blindfold.</li> <li>• Relax, let go, and lay still. Sometimes it can take a little while to fall back asleep.</li> <li>• Quiet your mind and don't talk to yourself, Just be patient.</li> <li>• If you find yourself in a dream, rub your hands together to stabilize it</li> <li>• try to do your lucid dream intention, then purposefully wake up to get clear recall.</li> </ul> | 4:30 am        |
 | <p><b>E. Recall Dream</b></p> <ul style="list-style-type: none;"> <li>• Lay back in the same position you woke up in and close your eyes.</li> <li>• Quiet your mind, and allow yourself to recall as much as you can.</li> <li>• Spend 2 minutes recalling, then get up and write in your dream journal.</li> <li>• Always write a title and a date, even if you don't remember much.</li> <li>• Go back to bed if there is more time to sleep.</li> </ul>                                                                                                             | 6:00 am        |
 | <p><b>F. Get Up</b></p> <ul style="list-style-type: none;"> <li>• Share your dream experience with someone this morning.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                     | 7:00 am        |
+
+**Optional:** Send me your feedback, questions, or dream experience:  
+[www.YouCanLucidDream.com/contact](http://www.YouCanLucidDream.com/contact) or [Richard@BulbMedia.com](mailto:Richard@BulbMedia.com)
