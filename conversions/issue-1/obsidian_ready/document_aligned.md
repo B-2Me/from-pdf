@@ -4,18 +4,18 @@ To begin, first schedule which night(s) you can devote at least 8 hours to compl
 
 **Requirements:**
 
-- • Dream journal and pen
-- • 2 alarm clocks
-- • At least 8 hours of time in bed.
+- Dream journal and pen
+- 2 alarm clocks
+- At least 8 hours of time in bed.
 
 **Optional:**
 
-- • Dream Supplement or Tea
-- • Ear Plugs
-- • Blindfold
+- Dream Supplement or Tea
+- Ear Plugs
+- Blindfold
 
-| **A. Prepare (30 minutes)** | **Example** |
-|---|---|
+| A. Prepare (30 minutes) | Example |
+| --- | --- |
 | - Setup 2 alarms: First alarm set for 5 hours from when you start to go to sleep.<br>- Set the second alarm for 8 hours or when you need to get up for your normal day.<br>- Write down your *lucid dream intention* or what you want to do if you get lucid. | 10:30pm |
 | **B. Sleep (5 hours)**<br>- Start to go to sleep until the first alarm wakes you up (approximately 5 hours) | 11:00pm |
 | **C. Wake Up (Stay away for at least 20 minutes)**<br>- Get out of bed and stretch. Spend some time reading or writing.<br>- Write down if you remember a dream and read your *lucid dream intention*.<br>- If you wish; take a dream supplement with a glass of water, or drink dream tea.<br>- **Do a reality test**, and keep in mind that you will be dreaming soon. | 4:00 am |
