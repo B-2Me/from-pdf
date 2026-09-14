@@ -1,14 +1,14 @@
-# Nighttime Practice for Lucid Dreams
+## Nighttime Practice for Lucid Dreams
 
 To begin, first schedule which night(s) you can devote at least 8 hours to complete this dream technique. Then Follow the sequence listed below. You can adjust the example times given based on what works for your schedule. If you can go to bed earlier, or sleep in later than can help.
 
-## Requirements:
+**Requirements:**
 
 - • Dream journal and pen
 - • 2 alarm clocks
 - • At least 8 hours of time in bed.
 
-## Optional:
+**Optional:**
 
 - • Dream Supplement or Tea
 - • Ear Plugs
