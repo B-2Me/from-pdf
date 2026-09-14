@@ -49,8 +49,7 @@ jobs:
       - name: Parse Commands
         run: |
           if echo "${{ github.event.issue.body }}" | grep -iq "/force-ocr"; then
-            rm -rf conversions/issue-${{ github.event.issue.number }}/corrupted
-            rm -rf conversions/issue-${{ github.event.issue.number }}/fixed
+            rm -rf conversions/issue-${{ github.event.issue.number }}
           fi
           PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range\s+\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
@@ -59,25 +58,33 @@ jobs:
             echo "PAGE_ARG=" >> $GITHUB_ENV
           fi
 
-      - name: Convert PDF (Fixed Visual OCR for Clean Spacing)
+      - name: Convert PDF (Raw Text for Python Pipeline)
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          if [ ! -f "conversions/issue-${{ github.event.issue.number }}/fixed/document/document.md" ]; then
-            mkdir -p conversions/issue-${{ github.event.issue.number }}/fixed
-            marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/fixed --mode fast --force_ocr --debug $PAGE_ARG
-          fi
+          mkdir -p conversions/issue-${{ github.event.issue.number }}/raw_text
+          marker_single document.pdf \
+            --output_dir conversions/issue-${{ github.event.issue.number }}/raw_text \
+            --mode fast --force_ocr \
+            --keep_pagefooter_in_output --keep_pageheader_in_output \
+            $PAGE_ARG
 
-      - name: Checkpoint Commit (Save Raw OCR Progress)
+      - name: Convert PDF (Marker Native LLM Pipeline)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add conversions/issue-${{ github.event.issue.number }}/
-          git commit -m "Checkpoint: Save raw OCR results for issue #${{ github.event.issue.number }} [skip ci]" || echo "No new OCR changes to commit"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          mkdir -p conversions/issue-${{ github.event.issue.number }}/native_llm
+          marker_single document.pdf \
+            --output_dir conversions/issue-${{ github.event.issue.number }}/native_llm \
+            --mode fast --force_ocr --debug \
+            --keep_pagefooter_in_output --keep_pageheader_in_output \
+            --use_llm \
+            --llm_service marker.services.openrouter.OpenRouterService \
+            --openrouter_model "nvidia/nemotron-3-ultra-550b-a55b:free" \
+            $PAGE_ARG
 
-      - name: Multi-Model Evaluation & Formatting
+      - name: Triangulate & Align Formatting via Python
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -88,67 +95,47 @@ jobs:
           from google import genai
           from openai import OpenAI
 
-          # ==============================================================================
-          # MODEL CONFIGURATION
-          # To collapse back to a single model, simply remove all but one dictionary here!
-          # ==============================================================================
-          MODELS_TO_EVALUATE = [
-              {
-                  "id": "nemotron_ultra",
-                  "provider": "openrouter",
-                  "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
-              },
-              {
-                  "id": "nemotron_lightning",
-                  "provider": "openrouter",
-                  "model": "nvidia/nemotron-3.5-lightning:free"
-              },
-              {
-                  "id": "gemini_flash",
-                  "provider": "google",
-                  "model": "gemini-2.5-flash-lite"
-              }
-          ]
-
           model_usage_stats = collections.defaultdict(int)
+          disabled_providers = set()
 
-          def call_single_model(cfg, prompt):
-              provider = cfg['provider']
-              model_name = cfg['model']
-              
-              attempt, max_retries, delay = 1, 3, 5
-              while attempt <= max_retries:
-                  try:
-                      if provider == 'google':
-                          client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
-                          res = client.models.generate_content(model=model_name, contents=prompt).text
-                      elif provider == 'openrouter':
-                          client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ.get("OPENROUTER_API_KEY"))
-                          res = client.chat.completions.create(
-                              model=model_name,
-                              messages=[{"role": "user", "content": prompt}]
-                          ).choices[0].message.content
-                      
-                      if res:
-                          model_usage_stats[f"{cfg['id']} ({model_name})"] += 1
-                          return res
-                  except Exception as e:
-                      err_str = str(e)
-                      print(f"[{cfg['id']} Attempt {attempt} Failed]: {err_str[:120]}", flush=True)
-                      if any(k in err_str for k in ['403', '401', 'PERMISSION_DENIED']):
-                          break
-                      if any(k in err_str for k in ['429', 'RateLimit', 'RESOURCE_EXHAUSTED']):
-                          time.sleep(15.0)
-                      else:
-                          time.sleep(delay + random.uniform(0.5, 2.0))
-                          delay = min(delay * 2, 60)
-                  attempt += 1
-              return None
+          def call_llm(prompt, pass_name):
+              global model_usage_stats, disabled_providers
+              models = [
+                  {'provider': 'openrouter', 'model': 'nvidia/nemotron-3-ultra-550b-a55b:free'},
+                  {'provider': 'google', 'model': 'gemini-3.5-flash-lite'}
+              ]
+              for cfg in models:
+                  provider, model_name = cfg['provider'], cfg['model']
+                  if provider in disabled_providers: continue
+                  attempt, max_retries, delay = 1, 3, 5
+                  while attempt <= max_retries:
+                      try:
+                          if provider == 'google':
+                              client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
+                              res = client.models.generate_content(model=model_name, contents=prompt).text
+                          elif provider == 'openrouter':
+                              client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=os.environ.get("OPENROUTER_API_KEY"))
+                              res = client.chat.completions.create(model=model_name, messages=[{"role": "user", "content": prompt}]).choices[0].message.content
+                          if res:
+                              model_usage_stats[model_name] += 1
+                              return res
+                      except Exception as e:
+                          error_str = str(e)
+                          if any(err in error_str for err in ['403', 'PERMISSION_DENIED', '401']):
+                              disabled_providers.add(provider)
+                              break 
+                          if '404' in error_str: break 
+                          if any(err in error_str for err in ['429', 'RESOURCE_EXHAUSTED', 'RateLimit']): time.sleep(15.0)
+                          else:
+                              time.sleep(delay + random.uniform(0.5, 2.0))
+                              delay = min(delay * 2, 60)
+                      attempt += 1
+              print("\n❌ FATAL: All models exhausted.", flush=True)
+              sys.exit(1)
 
-          def format_with_model(cfg, raw_text):
-              print(f"\n==================================================", flush=True)
-              print(f"-> Generating comparison with: {cfg['id']} ({cfg['model']})", flush=True)
-              print(f"==================================================", flush=True)
+          def process_document(clean_path, output_path, summary_path):
+              with open(clean_path, 'r', encoding='utf-8') as f:
+                  raw_text = f.read()
 
               paragraphs = raw_text.split('\n\n')
               batches, current_batch = [], ""
@@ -162,106 +149,84 @@ jobs:
               if current_batch:
                   batches.append(current_batch)
 
-              model_output_blocks = []
+              final_document = []
 
               for i, batch in enumerate(batches):
-                  prompt = f"""You are a precise document reconstruction AI. Your task is to format raw OCR text into pristine Markdown.
+                  print(f"-> Processing Batch {i+1}/{len(batches)}...", flush=True)
+                  prompt = f"""You are an expert document reconstruction AI. Reformat the OCR text sequentially from top to bottom into pristine Markdown.
 
                   CRITICAL RULES:
-                  1. ZERO DATA LOSS: Every single word from the source text must exist in your output.
-                  2. PREVENT ATTENTION DECAY: When finishing a table, NEVER drop the trailing non-table text (URLs, footers, notes). The last row of a table is NOT the document footer!
-                  3. STRICT MARKDOWN: Absolutely NO HTML tags (no <ul>, <li>, <p>, <b>). Use standard Markdown (`-` for lists, `**` for bold). Only `<br>` is permitted inside table cells.
-                  4. Convert broken math into LaTeX ($...$ or $$...$$).
+                  1. ZERO DATA LOSS: Every single word from the source must exist in your output.
+                  2. STRICT MARKDOWN ONLY: Inside `<table_block>`, use ONLY `|---|` syntax, `- ` for lists, and `<br>` for newlines. ABSOLUTELY NO HTML tags like `<ul>`, `<li>`, `<p>`, or `<b>`.
 
                   REQUIRED OUTPUT FORMAT:
-                  <scratchpad>
-                  - Exact last 20 words of this text: "..."
-                  - Is there text after the table? State it explicitly here so you do not omit it.
-                  </scratchpad>
-
                   <text_block>
-                  (Headings, intro paragraphs, bulleted lists preceding tables)
+                  (Standard paragraphs, headers, and trailing footers perfectly formatted in Markdown)
                   </text_block>
-
+                  
                   <table_block is_continuation="false">
-                  (Strict Markdown table syntax: |---|)
+                  (Strict Markdown table. NO HTML ALLOWED.)
                   </table_block>
-
-                  <text_block>
-                  (Trailing text, URLs, and footnotes following the table)
-                  </text_block>
 
                   <source_text>
                   {batch}
                   </source_text>"""
-
-                  res = call_single_model(cfg, prompt)
-                  if not res:
-                      print(f"❌ Skipping {cfg['id']} due to API failure.", flush=True)
-                      return None
-
+                  
+                  res = call_llm(prompt, "Full Document Sequential Parser")
+                  
                   blocks = re.finditer(r'<(text_block|table_block)([^>]*)>(.*?)</\1>', res, re.DOTALL | re.IGNORECASE)
                   for match in blocks:
                       tag_name = match.group(1).lower()
                       attributes = match.group(2).lower()
                       content = match.group(3).strip()
-
+                      
                       if tag_name == 'text_block':
-                          model_output_blocks.append(content)
+                          final_document.append(content)
                       elif tag_name == 'table_block':
                           is_continuation = 'is_continuation="true"' in attributes
-                          if is_continuation and model_output_blocks and '|' in model_output_blocks[-1]:
+                          if is_continuation and final_document and '|' in final_document[-1]:
                               lines = content.split('\n')
                               merged_rows = []
-                              passed_sep = False
+                              passed_separator = False
                               for line in lines:
                                   if re.search(r'\|[\s\-\:]+\|', line):
-                                      passed_sep = True
+                                      passed_separator = True
                                       continue
-                                  if passed_sep and line.strip():
+                                  if passed_separator and line.strip():
                                       merged_rows.append(line)
-                              model_output_blocks[-1] += "\n" + "\n".join(merged_rows)
+                              final_document[-1] += "\n" + "\n".join(merged_rows)
                           else:
-                              model_output_blocks.append(content)
+                              final_document.append(content)
+                  time.sleep(4)
 
-                  time.sleep(3)
+              final_md_text = '\n\n'.join(final_document)
 
-              return '\n\n'.join(model_output_blocks)
-
-          def main(issue_num):
-              base_dir = f"conversions/issue-{issue_num}"
-              raw_path = f"{base_dir}/fixed/document/document.md"
+              # ==========================================
+              # THE DETERMINISTIC SAFETY NET
+              # ==========================================
+              raw_lines = [line.strip() for line in raw_text.strip().split('\n') if line.strip()]
+              last_raw_line = raw_lines[-1] if raw_lines else ""
               
-              with open(raw_path, 'r', encoding='utf-8') as f:
-                  raw_text = f.read()
+              if last_raw_line and last_raw_line.lower() not in final_md_text.lower():
+                  print(f"\n   [🛡️ SAFETY NET ACTIVATED] AI dropped the footer. Appending: '{last_raw_line}'", flush=True)
+                  final_md_text += f"\n\n{last_raw_line}"
 
-              is_single_mode = len(MODELS_TO_EVALUATE) == 1
-
-              for idx, cfg in enumerate(MODELS_TO_EVALUATE):
-                  result_md = format_with_model(cfg, raw_text)
-                  if not result_md: continue
-
-                  if is_single_mode:
-                      out_file = f"{base_dir}/document_aligned.md"
-                  else:
-                      out_file = f"{base_dir}/document_aligned_{cfg['id']}.md"
-                      # Keep a primary document_aligned.md pointing to the first evaluated model
-                      if idx == 0:
-                          with open(f"{base_dir}/document_aligned.md", 'w', encoding='utf-8') as f:
-                              f.write(result_md)
-
-                  with open(out_file, 'w', encoding='utf-8') as f:
-                      f.write(result_md)
-                  print(f"Saved: {out_file}", flush=True)
-
-              summary_path = f"{base_dir}/model_summary.md"
+              print(f"\n-> Saving aligned markdown to: {output_path}", flush=True)
+              with open(output_path, 'w', encoding='utf-8') as f:
+                  f.write(final_md_text)
+                  
               with open(summary_path, 'w', encoding='utf-8') as f:
                   f.write("### 🤖 Model Usage Summary\n")
                   for m, count in model_usage_stats.items():
                       f.write(f"- **{m}**: {count} successful calls\n")
 
           if __name__ == "__main__":
-              main(sys.argv[1])
+              issue_num = sys.argv[1]
+              process_document(
+                  f"conversions/issue-{issue_num}/raw_text/document/document.md",
+                  f"conversions/issue-{issue_num}/document_our_pipeline.md",
+                  f"conversions/issue-{issue_num}/model_summary.md"
+              )
           EOF
           
           python align_formatting.py ${{ github.event.issue.number }}
@@ -269,45 +234,39 @@ jobs:
       - name: Package for Obsidian
         run: |
           cd conversions/issue-${{ github.event.issue.number }}
+          cp native_llm/document/document.md document_marker_native.md || echo "Marker native failed"
+          
           mkdir -p obsidian_ready
-          cp document_aligned*.md obsidian_ready/
-          find fixed/document/ -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \;
+          cp document_our_pipeline.md obsidian_ready/
+          cp document_marker_native.md obsidian_ready/
+          
+          find raw_text/document/ -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \;
           zip -r obsidian_ready.zip obsidian_ready/
-          zip -r debug_archive.zip fixed/ ../../align_formatting.py
+          zip -r debug_archive.zip raw_text/ native_llm/ ../../align_formatting.py
 
       - name: Final Commit & Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/
-          git commit -m "Generate multi-model comparisons for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
+          git commit -m "Auto-generate comparison markdown for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Post Comparison Download Links
+      - name: Post Direct Download Links
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const issueNum = context.issue.number;
             const dir = `conversions/issue-${issueNum}`;
-            
             let modelSummary = fs.existsSync(`${dir}/model_summary.md`) 
               ? fs.readFileSync(`${dir}/model_summary.md`, 'utf8') 
               : "_Model tracking information unavailable._";
-
-            const files = fs.readdirSync(dir)
-              .filter(f => f.startsWith('document_aligned') && f.endsWith('.md'))
-              .sort();
-
-            let fileLinks = files.map(f => {
-              const label = f.replace('document_aligned_', '').replace('.md', '').replace('document_aligned', 'primary_output');
-              return `- 📄 **${label}**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/${f})`;
-            }).join('\n');
-
+            
             await github.rest.issues.createComment({
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Comparison Complete!**\n\n${modelSummary}\n\n### 🔬 Output Files (Tap to Review):\n${fileLinks}\n\n📚 **Obsidian Vault (All Variants Included):** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Alignment Complete!**\n\n${modelSummary}\n\n### 🔬 Output Files (Tap to Review):\n- 📄 **Custom Python Pipeline**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/document_our_pipeline.md)\n- 📄 **Marker Native LLM**: [View Markdown](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/document_marker_native.md)\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
