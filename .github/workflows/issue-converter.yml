@@ -26,9 +26,8 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - name: Install Dependencies & Download llama.cpp
+      - name: Install Dependencies
         run: |
-          # Added poppler-utils for pdftoppm (PDF to Image conversion) and explicit openai package
           sudo apt-get update
           sudo apt-get install -y zip unzip poppler-utils
           pip install . openai
@@ -48,29 +47,52 @@ jobs:
           if [ -z "$PDF_URL" ]; then exit 1; fi
           curl -L -o document.pdf "$PDF_URL"
           
-          # Convert PDF to a single image for the Vision model
-          pdftoppm -png -singlefile -r 150 document.pdf page
+          # Convert PDF to images for the Vision model (always runs so they are ready)
+          pdftoppm -png -r 150 document.pdf page
 
-      - name: Parse Commands
+      - name: Parse Slash Commands
         run: |
-          if echo "${{ github.event.issue.body }}" | grep -iq "/force-ocr"; then
-            rm -rf conversions/issue-${{ github.event.issue.number }}
-          fi
-          PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range\s+\K[\d-]+' | head -n 1)
+          # 1. Engine Routing
+          ENGINE="vision"
+          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker-llm"; then ENGINE="marker-llm"; fi
+          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker"; then ENGINE="marker"; fi
+          echo "ENGINE=$ENGINE" >> $GITHUB_ENV
+          echo "-> Engine: $ENGINE"
+
+          # 2. Page Range
+          PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
             echo "PAGE_ARG=--page_range $PAGE_RANGE" >> $GITHUB_ENV
+            echo "-> Page Range: $PAGE_RANGE"
           else
             echo "PAGE_ARG=" >> $GITHUB_ENV
           fi
 
-      - name: Pipeline 1 | Pure Vision Model (Ling 3.0 Flash VL)
+          # 3. Timeout Override (Default 15 mins)
+          TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
+          if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="15"; fi
+          echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
+          echo "-> Timeout: ${TIMEOUT_MINS}m"
+
+          # 4. Model Override
+          CUSTOM_MODEL=$(echo "${{ github.event.issue.body }}" | grep -oP '/model(?:=|\s+)\K[^\s]+' | head -n 1)
+          echo "CUSTOM_MODEL=$CUSTOM_MODEL" >> $GITHUB_ENV
+          if [ -n "$CUSTOM_MODEL" ]; then echo "-> Model Override: $CUSTOM_MODEL"; fi
+
+      # ==========================================
+      # ENGINE 1: PURE VISION (DEFAULT)
+      # ==========================================
+      - name: Engine | Vision Pipeline
+        if: env.ENGINE == 'vision'
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: |
-          mkdir -p conversions/issue-${{ github.event.issue.number }}
+          mkdir -p conversions/issue-${{ github.event.issue.number }}/vision
+          mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
+          
           cat << 'EOF' > run_vision.py
-          import base64, os, sys
+          import base64, os, sys, glob, re, time
           from openai import OpenAI
 
           client = OpenAI(
@@ -78,90 +100,146 @@ jobs:
               api_key=os.environ.get("OPENROUTER_API_KEY"),
           )
 
-          try:
-              with open("page.png", "rb") as image_file:
-                  b64_image = base64.b64encode(image_file.read()).decode("utf-8")
+          model_to_use = os.environ.get("CUSTOM_MODEL")
+          if not model_to_use:
+              model_to_use = "inclusionai/ling-3.0-flash-vl:free"
+
+          def get_page_num(filename):
+              m = re.search(r'page-(\d+)\.png$', filename)
+              return int(m.group(1)) if m else 0
+
+          image_files = sorted(glob.glob(f"{sys.argv[1]}/vision/page-*.png"), key=get_page_num)
+          final_md = []
+
+          print(f"-> Found {len(image_files)} pages. Processing with {model_to_use}...", flush=True)
+
+          for img_path in image_files:
+              print(f"   Transcribing {os.path.basename(img_path)}...", flush=True)
+              with open(img_path, "rb") as f:
+                  b64_image = base64.b64encode(f.read()).decode("utf-8")
               
               prompt = """Transcribe this document page into clean Markdown. 
               Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
               Do NOT use HTML tags (no <ul>, <li>, <p>). 
               Ensure every header, bullet point, footnote, and footer link at the bottom is fully captured."""
 
-              response = client.chat.completions.create(
-                  model="inclusionai/ling-3.0-flash-vl:free",
-                  messages=[
-                      {
-                          "role": "user",
-                          "content": [
-                              {"type": "text", "text": prompt},
-                              {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
+              attempt = 1
+              while attempt <= 3:
+                  try:
+                      response = client.chat.completions.create(
+                          model=model_to_use,
+                          messages=[
+                              {
+                                  "role": "user",
+                                  "content": [
+                                      {"type": "text", "text": prompt},
+                                      {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
+                                  ]
+                              }
                           ]
-                      }
-                  ]
-              )
-              
-              with open(sys.argv[1], "w", encoding="utf-8") as f:
-                  f.write(response.choices[0].message.content)
-              print("✅ Vision model transcription saved.", flush=True)
-          except Exception as e:
-              print(f"❌ Vision model failed: {e}", flush=True)
+                      )
+                      final_md.append(response.choices[0].message.content)
+                      break
+                  except Exception as e:
+                      print(f"     ❌ Attempt {attempt} failed: {e}", flush=True)
+                      time.sleep(5)
+                      attempt += 1
+              time.sleep(2) # Buffer to prevent free-tier 429 limits
+
+          out_file = f"{sys.argv[1]}/document_vision.md"
+          with open(out_file, "w", encoding="utf-8") as f:
+              f.write("\n\n---\n\n".join(final_md))
+          print(f"✅ Vision transcription saved to {out_file}", flush=True)
           EOF
-          python run_vision.py conversions/issue-${{ github.event.issue.number }}/document_vision_ling_flash.md
+          
+          timeout ${TIMEOUT_MINUTES}m python run_vision.py conversions/issue-${{ github.event.issue.number }}
 
-      - name: Pipeline 2 | Marker Base OCR (No LLM)
+      # ==========================================
+      # ENGINE 2: MARKER CPU
+      # ==========================================
+      - name: Engine | Marker Base
+        if: env.ENGINE == 'marker'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/base \
-            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output $PAGE_ARG
-          cp conversions/issue-${{ github.event.issue.number }}/base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_base.md
-
-      - name: Pipeline 3 | Marker Native LLM Correction
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENAI_BASE_URL: "https://openrouter.ai/api/v1"
-        run: |
-          # Marker supports OpenAI-compatible endpoints natively, allowing us to route to OpenRouter
-          marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/native_llm \
-            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output \
-            --use_llm --llm_service marker.services.openai.OpenAIService \
-            --openai_model "nvidia/nemotron-3-ultra-550b-a55b:free" \
-            $PAGE_ARG || echo "Marker Native LLM failed"
+          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
+            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output $PAGE_ARG || echo "Process finished or timed out."
             
-          if [ -f conversions/issue-${{ github.event.issue.number }}/native_llm/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/native_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_native_llm.md
+          if [ -f conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md ]; then
+            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker.md
           fi
 
+      # ==========================================
+      # ENGINE 3: MARKER NATIVE LLM
+      # ==========================================
+      - name: Engine | Marker Native LLM
+        if: env.ENGINE == 'marker-llm'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MARKER_OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MARKER_OPENAI_BASE_URL: "https://openrouter.ai/api/v1"
+        run: |
+          LLM_MODEL="${CUSTOM_MODEL:-nvidia/nemotron-3-ultra-550b-a55b:free}"
+          echo "Running Marker with LLM: $LLM_MODEL"
+          
+          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
+            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output \
+            --use_llm --llm_service marker.services.openai.OpenAIService \
+            --openai_model "$LLM_MODEL" \
+            $PAGE_ARG || echo "Process finished or timed out."
+          
+          if [ -f conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md ]; then
+            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm.md
+          fi
+
+      # ==========================================
+      # PACKAGING & NOTIFICATION
+      # ==========================================
       - name: Package for Obsidian
+        if: always()
         run: |
           cd conversions/issue-${{ github.event.issue.number }}
           mkdir -p obsidian_ready
           cp document_*.md obsidian_ready/ 2>/dev/null || true
-          find base/document/ -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \; 2>/dev/null || true
+          find . -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \; 2>/dev/null || true
+          
           zip -r obsidian_ready.zip obsidian_ready/
-          zip -r debug_archive.zip base/ native_llm/ 2>/dev/null || true
+          zip -r debug_archive.zip . -i \*/document/\* run_vision.py 2>/dev/null || true
 
       - name: Final Commit & Push
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/
-          git commit -m "Generate 3-way architectural bake-off for issue #${{ github.event.issue.number }} [skip ci]" || echo "No final changes to commit"
+          git commit -m "Generated markdown using ${ENGINE} engine [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main
           git push origin HEAD:main
 
-      - name: Post Comparison Download Links
+      - name: Post Success Comment
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const issueNum = context.issue.number;
+            const engine = process.env.ENGINE;
             const dir = `conversions/issue-${issueNum}`;
 
+            if (!fs.existsSync(dir)) return;
+
             const files = fs.readdirSync(dir)
-              .filter(f => f.startsWith('document_') && f.endsWith('.md'))
-              .sort();
+              .filter(f => f.startsWith('document_') && f.endsWith('.md'));
+
+            if (files.length === 0) {
+              await github.rest.issues.createComment({
+                issue_number: issueNum,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `❌ **Conversion Failed or Timed Out!**\n\nThe \`${engine}\` engine did not complete within the ${process.env.TIMEOUT_MINUTES} minute timeout window.`
+              });
+              return;
+            }
 
             let fileLinks = files.map(f => {
               const label = f.replace('document_', '').replace('.md', '');
@@ -172,5 +250,5 @@ jobs:
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Architectural Bake-Off Complete!**\n\n### 🔬 Output Files (Tap to Review):\n${fileLinks}\n\n📚 **Obsidian Vault (All Variants Included):** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
