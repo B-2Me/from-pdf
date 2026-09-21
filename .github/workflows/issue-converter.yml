@@ -135,9 +135,16 @@ jobs:
                   b64_image = base64.b64encode(f.read()).decode("utf-8")
               
               prompt = """Transcribe this document page into clean Markdown. 
-              Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
-              Do NOT use HTML tags (no <ul>, <li>, <p>). 
-              Ensure every header, bullet point, footnote, and footer link at the bottom is fully captured."""
+
+              CRITICAL MATH RULES:
+              1. ALWAYS format mathematical equations, symbols, and standalone variables using proper LaTeX enclosed in `$` for inline math and `$$` for block math.
+              2. NEVER use Unicode math characters (e.g., avoid 𝓕, ℒ, Σ). Use their LaTeX equivalents instead (e.g., $\mathcal{F}$, $\mathcal{L}$, $\Sigma$).
+              3. DO NOT escape underscores. Write `_` instead of `\_` both inside and outside of math blocks.
+
+              FORMATTING RULES:
+              - Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
+              - Do NOT use HTML tags (no <ul>, <li>, <p>). 
+              - Ensure every header, bullet point, footnote, and footer link at the bottom is fully captured."""
 
               attempt = 1
               while attempt <= 3:
@@ -213,6 +220,10 @@ jobs:
         if: always()
         run: |
           cd conversions/issue-${{ github.event.issue.number }} || exit 0
+          
+          # Clean up rogue escaped underscores across ALL generated Markdown files
+          find . -type f -name "*.md" -exec sed -i 's/\\_/_/g' {} +
+          
           mkdir -p obsidian_ready
           cp document_*.md obsidian_ready/ 2>/dev/null || true
           
