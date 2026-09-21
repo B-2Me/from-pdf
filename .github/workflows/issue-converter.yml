@@ -222,14 +222,7 @@ jobs:
           cd conversions/issue-${{ github.event.issue.number }} || exit 0
           
           # Aggressive Obsidian Math & Markdown Cleanup
-          # 1. Replaces \(and\) with $ for inline math
-          # 2. Replaces \[and\] with $$ for block math
-          # 3. Strips rogue escaped underscores (\_) and asterisks (\*)
-          find . -type f -name "*.md" -exec sed -i \
-            -e 's/\\(/$/g' \             -e 's/\\)/$/g' \
-            -e 's/\\\[/$$/g' \             -e 's/\\\]/$$/g' \
-            -e 's/\\_/_/g' \
-            -e 's/\\\*/*/g' {} +
+          find . -type f -name "*.md" -exec sed -i -e 's/\\(/$/g' -e 's/\\)/$/g' -e 's/\\\[/$$/g' -e 's/\\\]/$$/g' -e 's/\\_/_/g' -e 's/\\\*/*/g' {} + || true
           
           mkdir -p obsidian_ready
           cp document_*.md obsidian_ready/ 2>/dev/null || true
