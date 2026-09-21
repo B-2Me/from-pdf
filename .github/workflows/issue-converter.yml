@@ -221,8 +221,15 @@ jobs:
         run: |
           cd conversions/issue-${{ github.event.issue.number }} || exit 0
           
-          # Clean up rogue escaped underscores across ALL generated Markdown files
-          find . -type f -name "*.md" -exec sed -i 's/\\_/_/g' {} +
+          # Aggressive Obsidian Math & Markdown Cleanup
+          # 1. Replaces \(and\) with $ for inline math
+          # 2. Replaces \[and\] with $$ for block math
+          # 3. Strips rogue escaped underscores (\_) and asterisks (\*)
+          find . -type f -name "*.md" -exec sed -i \
+            -e 's/\\(/$/g' \             -e 's/\\)/$/g' \
+            -e 's/\\\[/$$/g' \             -e 's/\\\]/$$/g' \
+            -e 's/\\_/_/g' \
+            -e 's/\\\*/*/g' {} +
           
           mkdir -p obsidian_ready
           cp document_*.md obsidian_ready/ 2>/dev/null || true
