@@ -49,7 +49,7 @@ jobs:
 
       - name: Parse Slash Commands
         run: |
-          # 1. Engine Routing (Default is now fast Marker base)
+          # 1. Engine Routing
           ENGINE="marker"
           if echo "${{ github.event.issue.body }}" | grep -iq "/engine=vision"; then ENGINE="vision"; fi
           if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker-llm"; then ENGINE="marker-llm"; fi
@@ -72,7 +72,6 @@ jobs:
             echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
             echo "-> Page Range: $PAGE_RANGE"
             
-            # Setup arguments for pdftoppm if Vision is used
             FIRST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f1)
             LAST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f2)
             echo "PDFTOPPM_ARGS=-f $FIRST_PAGE -l $LAST_PAGE" >> $GITHUB_ENV
@@ -104,6 +103,7 @@ jobs:
         run: |
           mkdir -p conversions/issue-${{ github.event.issue.number }}/vision
           pdftoppm -png -r 150 $PDFTOPPM_ARGS document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
+          mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
           
           cat << 'EOF' > run_vision.py
           import base64, os, sys, glob, re, time
@@ -124,7 +124,6 @@ jobs:
           image_files = sorted(glob.glob(f"{sys.argv[1]}/vision/page-*.png"), key=get_page_num)
           out_file = f"{sys.argv[1]}/document_vision_{file_suffix}.md"
 
-          # Wipe the file only at the start of this specific chunk run
           with open(out_file, "w", encoding="utf-8") as f:
               f.write("")
 
