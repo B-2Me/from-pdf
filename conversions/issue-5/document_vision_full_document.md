@@ -1,32 +1,41 @@
-Journal of Holography Applications in Physics<br>Volume 5, Issue 2, Spring 2025, 10–21<br>©Available online at http://jhap.du.ac.ir<br>DOI: 10.22128/jhap.2025.1024.1118<br>Online ISSN: 2783–3518
+Journal of Holography Applications in Physics
+Volume 5, Issue 2, Spring 2025, 10–21
+©Available online at http://jhap.du.ac.ir
+DOI: 10.22128/jhap.2025.1024.1118
+Online ISSN: 2783–3518
 
-Letter
+### Letter
 
 # Consequences of Undecidability in Physics on the Theory of Everything
 
 Mir Faizal^1,2,3,4 · Lawrence M. Krauss^5 · Arshid Shabir^2 · Francesco Marino^6
 
-1 Irving K. Barber School of Arts and Sciences, University of British Columbia Okanagan, Kelowna, BC V1V 1V7, Canada;<br>E-mail: mirfaizalmir@gmail.com
+1 Irving K. Barber School of Arts and Sciences, University of British Columbia Okanagan, Kelowna, BC V1V 1V7, Canada;
+E-mail: mirfaizalmir@gmail.com
 
-2 Canadian Quantum Research Center, 204-3002 32 Ave, Vernon, BC V1T 2L7, Canada;<br>Corresponding Author E-mail: aslone186@gmail.com
+2 Canadian Quantum Research Center, 204-3002 32 Ave, Vernon, BC V1T 2L7, Canada;
+Corresponding Author E-mail: aslone186@gmail.com
 
 3 Department of Mathematical Sciences, Durham University, Upper Mountjoy, Stockton Road, Durham DH1 3LE, UK.
 
 4 Faculty of Sciences, Hasselt University, Agoralaan Gebouw D, Diepenbeek, 3590 Belgium.
 
-5 Origin Project Foundation, Phoenix, AZ 85018, USA;<br>E-mail: lawrence@originsproject.org
+5 Origin Project Foundation, Phoenix, AZ 85018, USA;
+E-mail: lawrence@originsproject.org
 
-6 CNR-Istituto Nazionale di Ottica and INFN, Via Sansone 1, I-50019 Sesto Fiorentino (FI), Italy;<br>E-mail: francesco.marino@ino.cnr.it
+6 CNR-Istituto Nazionale di Ottica and INFN, Via Sansone 1, I-50019 Sesto Fiorentino (FI), Italy;
+E-mail: francesco.marino@ino.cnr.it
 
 **Received:** June 6, 2025; **Accepted:** June 17, 2025
 
 **Abstract.** General relativity treats spacetime as dynamical and exhibits its breakdown at singularities. This failure is interpreted as evidence that quantum gravity is not a theory formulated within spacetime; instead, it must explain the very emergence of spacetime from deeper quantum degrees of freedom, thereby resolving singularities. Quantum gravity is therefore envisaged as an axiomatic structure, and algorithmic calculations acting on these axioms are expected to generate spacetime. However, Gödel's incompleteness theorems, Tarski's undefinability theorem, and Chaitin's information-theoretic incompleteness establish intrinsic limits on any such algorithmic program. Together, these results imply that a wholly algorithmic "Theory of Everything" is impossible: certain facets of reality will remain computationally undecidable and can be accessed only through non-algorithmic understanding. We formalize this by constructing a "Meta-Theory of Everything" grounded in non-algorithmic understanding, showing how it can account for undecidable phenomena and demonstrating that the breakdown of computational descriptions of nature does not entail a breakdown of science. Because any putative simulation of the universe would itself be algorithmic, this framework also implies that the universe cannot be a simulation.
 
-**Keywords:** Non-Algorithmic Understanding; Quantum Gravity; It from Bit, Gödel's incompleteness theorems; Tarski's undefinability theorem; Chaitin's information-theoretic incompleteness.
+**Keywords:** Non-Algorithmic Understanding; Quantum Gravity; It from Bit; Gödel's incompleteness theorems; Tarski's undefinability theorem; Chaitin's information-theoretic incompleteness.
 
 ---
 
-**COPYRIGHTS:** ©2025, Journal of Holography Applications in Physics. Published by Damghan University. This article is an open-access article distributed under the terms and conditions of the Creative Commons Attribution 4.0 International (CC BY 4.0).<br>https://creativecommons.org/licenses/by/4.0
+**COPYRIGHTS:** ©2025, Journal of Holography Applications in Physics. Published by Damghan University. This article is an open-access article distributed under the terms and conditions of the Creative Commons Attribution 4.0 International (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0
 
 10
 
@@ -46,19 +55,21 @@ These insights resonate with Wheeler's "it from bit" program and its modern vers
 
 ---
 
-12 Mir Faizal et al.
+12
+
+Mir Faizal et al.
 
 that the underlying "bit", a complete quantum-gravity theory, could be formulated as a consistent, computable "theory of everything." However, we now argue that such a purely algorithmic formulation is unattainable.
 
 As we do not have a fully consistent theory of quantum gravity, several different axiomatic systems have been proposed to model quantum gravity [26–32]. In all these programs, it is assumed a candidate theory of quantum gravity is encoded as a computational formal system
 
-𝓕_QG = {ℒ_QG, Σ_QG, 𝓡_alg} . (0.1)
+$$ \mathcal{F}_{QG} = \{\mathcal{L}_{QG}, \Sigma_{QG}, \mathcal{R}_{\rm alg}\}. \qquad (0.1) $$
 
-Here, ℒ_QG a first-order language whose non-logical symbols denote quantum states, fields, curvature, causal relations, etc. Σ_QG = {A_1, A_2, ...} is a finite (or at least recursively-enumerable) set of closed ℒ_QG-sentences embodying the fundamental physical principles. 𝓡_alg the standard, effective rules of inference used for computations. They operationalise "algorithmic calculations"; we write Σ_QG ⊣_alg φ ⟺ φ is derivable from Σ_QG via 𝓡_alg. Crucially, spacetime is not a primitive backdrop but a theorem-level construct emergent inside models of 𝓕_QG. Concrete mechanisms for which such geometry can emerge include dynamics in string theory [33,34], entanglement in holography [22,23], and spin-network dynamics in LQG [19,24,35].
+Here, $\mathcal{L}_{QG}$ a first-order language whose non-logical symbols denote quantum states, fields, curvature, causal relations, etc. $\Sigma_{QG} = \{A_1, A_2, \ldots\}$ is a finite (or at least recursively-enumerable) set of closed $\mathcal{L}_{QG}$-sentences embodying the fundamental physical principles. $\mathcal{R}_{\rm alg}$ the standard, effective rules of inference used for computations. They operationalise "algorithmic calculations"; we write $\Sigma_{QG} \vdash_{\rm alg} \varphi \iff \varphi$ is derivable from $\Sigma_{QG}$ via $\mathcal{R}_{\rm alg}$. Crucially, spacetime is not a primitive backdrop but a theorem-level construct emergent inside models of $\mathcal{F}_{QG}$. Concrete mechanisms for which such geometry can emerge include dynamics in string theory [33,34], entanglement in holography [22,23], and spin-network dynamics in LQG [19,24,35].
 
-Any viable 𝓕_QG must meet four intertwined criteria: Effective axiomatizability; The number of axioms in Σ_QG are finite. This ensures that proofs are well-posed. In fact, it is expected that spacetime can be algorithmically generated from this, and so it has to be computationally well defined [14,36]. Arithmetic expressiveness; ℒ_QG can internally model the natural numbers with their basic operations. This is important as quantum gravity should reproduce calculations used for amplitudes, curvature scalars, entropy, etc in appropriate limits. Both string theory [34,37] and LQG [35,38] satisfy this by reproducing GR and QM in appropriate limits. Internal consistency; no Σ_QG ⊣_alg ⊥. Strings secure this via anomaly cancellation [34,39]; LQG via an anomaly-free constraint algebra [35,40]. Empirical completeness; predictive all physical phenomena from the Planck scale to cosmology, and even resolves singularities.
+Any viable $\mathcal{F}_{QG}$ must meet four intertwined criteria: Effective axiomatizability; The number of axioms in $\Sigma_{QG}$ are finite. This ensures that proofs are well-posed. In fact, it is expected that spacetime can be algorithmically generated from this, and so it has to be computationally well defined [14,36]. Arithmetic expressiveness; $\mathcal{L}_{QG}$ can internally model the natural numbers with their basic operations. This is important as quantum gravity should reproduce calculations used for amplitudes, curvature scalars, entropy, etc in appropriate limits. Both string theory [34,37] and LQG [35,38] satisfy this by reproducing GR and QM in appropriate limits. Internal consistency; no $\Sigma_{QG} \vdash_{\rm alg} \bot$. Strings secure this via anomaly cancellation [34,39]; LQG via an anomaly-free constraint algebra [35,40]. Empirical completeness; predictive all physical phenomena from the Planck scale to cosmology, and even resolves singularities.
 
-The axiom set Σ_QG is finite, arithmetically expressive and consistent. As a result, Gödel's incompleteness theorems apply [41,42]. Here, we consider the algorithmic core of quantum gravity as a finite, consistent and arithmetically expressive formal system 𝓕_QG = (ℒ_QG, Σ_QG, 𝓡_alg). Its deductive closure is the recursively enumerable set of theorems Th(𝓕_QG) = {φ ∈ ℒ_QG | Σ_QG ⊣_𝓡_alg φ}, while the semantically true sentences are True(𝓕_QG) = {φ ∈ ℒ_QG | N ⊨ φ}. Thus, Gödel's first incompleteness theorem asserts the strict containment Th(𝓕_QG) ⊂ True(𝓕_QG) [41,42], guaranteeing the existence of well-formed ℒ_QG-statements that are true but unprovable within the algorithmic machinery of 𝓕_QG. Physically these Gödel sentences correspond to empirically meaningful facts—e.g., specific black-hole microstates—that elude any finite, rule-based derivation. Gödel's second theorem deepens the impasse: the self-referential consistency statement Con(𝓕_QG) ≡ ¬Prov_ΣQG(⊥) cannot itself be proved by 𝓕_QG without contradiction [41,42]. A purely computational theory of everything would therefore not be able to establish its own internal soundness. Tarski's undefinability theorem further bars the construction of an internal truth predicate Truth(x) ∈ ℒ_QG obeying Σ_QG ⊣_𝓡_alg [Truth(⌈φ⌉) ↔ φ] for all φ [43–45]. So, a truth predicate for quantum gravity cannot be defined within the theory itself. Finally, Chaitin's information-theoretic incompleteness establishes a constant K_𝓕QG such that any sentence S with prefix-free Kolmogorov complexity K(S) > K_𝓕QG is undecidable in 𝓕_QG [46–48]. This bound caps the epistemic reach of algorithmic deduction by declaring ultra-complex statements—inevitable in high-energy quantum gravity—formally inaccessible.
+The axiom set $\Sigma_{QG}$ is finite, arithmetically expressive and consistent. As a result, Gödel's incompleteness theorems apply [41,42]. Here, we consider the algorithmic core of quantum gravity as a finite, consistent and arithmetically expressive formal system $\mathcal{F}_{QG} = (\mathcal{L}_{QG}, \Sigma_{QG}, \mathcal{R}_{\rm alg})$. Its deductive closure is the recursively enumerable set of theorems $\mathrm{Th}(\mathcal{F}_{QG}) = \{\varphi \in \mathcal{L}_{QG} \mid \Sigma_{QG} \vdash_{\rm alg} \varphi\}$, while the semantically true sentences are $\mathrm{True}(\mathcal{F}_{QG}) = \{\varphi \in \mathcal{L}_{QG} \mid \mathbb{N} \models \varphi\}$. Thus, Gödel's first incompleteness theorem asserts the strict containment $\mathrm{Th}(\mathcal{F}_{QG}) \subsetneq \mathrm{True}(\mathcal{F}_{QG})$ [41,42], guaranteeing the existence of well-formed $\mathcal{L}_{QG}$-statements that are true but unprovable within the algorithmic machinery of $\mathcal{F}_{QG}$. Physically these Gödel sentences correspond to empirically meaningful facts—e.g., specific black-hole microstates—that elude any finite, rule-based derivation. Gödel's second theorem deepens the impasse: the self-referential consistency statement $\mathrm{Con}(\mathcal{F}_{QG}) \equiv \neg \mathrm{Prov}_{\Sigma_{QG}}(\bot)$ cannot itself be proved by $\mathcal{F}_{QG}$ without contradiction [41,42]. A purely computational theory of everything would therefore not be able to establish its own internal soundness. Tarski's undefinability theorem further bars the construction of an internal truth predicate $\mathrm{Truth}(x) \in \mathcal{L}_{QG}$ obeying $\Sigma_{QG} \vdash_{\rm alg} [\mathrm{Truth}(\ulcorner \varphi \urcorner) \leftrightarrow \varphi]$ for all $\varphi$ [43–45]. So, a truth predicate for quantum gravity cannot be defined within the theory itself. Finally, Chaitin's information-theoretic incompleteness establishes a constant $K_{\mathcal{F}_{QG}}$ such that any sentence $S$ with prefix-free Kolmogorov complexity $K(S) > K_{\mathcal{F}_{QG}}$ is undecidable in $\mathcal{F}_{QG}$ [46–48]. This bound caps the epistemic reach of algorithmic deduction by declaring ultra-complex statements—inevitable in high-energy quantum gravity—formally inaccessible.
 
 Together, the Gödel–Tarski–Chaitin triad delineates an insurmountable frontier for any
 
@@ -66,29 +77,27 @@ Together, the Gödel–Tarski–Chaitin triad delineates an insurmountable front
 
 Consequences of Undecidability in Physics on the Theory of Everything 13
 
-strictly computable framework. To attain a genuinely complete and self-justifying theory of quantum gravity one must augment $\mathcal{F}_{QG}$ with non-algorithmic resources— external truth predicate axioms, or other meta-logical mechanisms—that transcend recursive enumeration while remaining empirically consonant with physics at the Planck scale. Although these limits restrict what can be known computationally, the Lucas–Penrose argument shows that non-algorithmic understanding can access truths beyond formal proofs [49–53]. Purely algorithmic deduction is therefore insufficient for a complete foundational account.
+strictly computable framework. To attain a genuinely complete and self-justifying theory of quantum gravity one must augment $\mathcal{F}_{QG}$ with non-algorithmic resources—external truth predicate axioms, or other meta-logical mechanisms—that transcend recursive enumeration while remaining empirically consonant with physics at the Planck scale. Although these limits restrict what can be known computationally, the Lucas–Penrose argument shows that non-algorithmic understanding can access truths beyond formal proofs [49–53]. Purely algorithmic deduction is therefore insufficient for a complete foundational account.
 
 To transcend these computations limitations, we adjoin an external truth predicate $T(x)$ and a non-effective inference mechanism $\mathcal{R}_{\text{nonalg}}$, enlarging the formal apparatus to
 
-$$ \mathcal{M}_{\text{ToE}} = \{\mathcal{L}_{QG} \cup \{T\}, \Sigma_{QG} \cup \Sigma_T, \mathcal{R}_{\text{alg}} \cup \mathcal{R}_{\text{nonalg}}\}. \qquad (0.2) $$
+$$\mathcal{M}_{\text{ToE}} = \{\mathcal{L}_{QG}\cup\{T\},\Sigma_{QG}\cup\Sigma_T,\mathcal{R}_{\text{alg}}\cup\mathcal{R}_{\text{nonalg}}\}. \qquad (0.2)$$
 
-Here $\Sigma_T$ is an external, non-recursively-enumerable set of axioms about $T$. We write $\Sigma_T \vdash_{\text{nonalg}} \varphi$ precisely when $T(\ulcorner \varphi \urcorner) \in \Sigma_T$. The external truth predicate axioms obey four intertwined conditions. (S1) Soundness for $\mathcal{F}_{QG}$: whenever $T(\ulcorner \varphi \urcorner)$ is an axiom, $\varphi$ holds in every model of the base theory. (S2) Reflective completeness: if $\varphi$ is algorithmically derivable from $\Sigma_{QG}$, then the implication $\varphi \to T(\ulcorner \varphi \urcorner)$ itself belongs to $\Sigma_T$. (S3) Modus-ponens closure: $T$ respects logical consequence, for $T(\ulcorner \varphi \to \psi \urcorner)$ together with $T(\ulcorner \varphi \urcorner)$ entails $T(\ulcorner \psi \urcorner)$. (S4) Trans-algorithmicity: the induced theory $\mathrm{Th}_T = \{\varphi \mid T(\ulcorner \varphi \urcorner) \in \Sigma_T\}$ is not recursively enumerable; sentences of arbitrarily high Kolmogorov complexity can still be $T$-true, exceeding the information bound $K_{\mathcal{F}_{QG}}$.
+Here $\Sigma_T$ is an external, non-recursively-enumerable set of axioms about $T$. We write $\Sigma_T \vdash_{\text{nonalg}} \varphi$ precisely when $T(\ulcorner\varphi\urcorner) \in \Sigma_T$. The external truth predicate axioms obey four intertwined conditions. (S1) Soundness for $\mathcal{F}_{QG}$: whenever $T(\ulcorner\varphi\urcorner)$ is an axiom, $\varphi$ holds in every model of the base theory. (S2) Reflective completeness: if $\varphi$ is algorithmically derivable from $\Sigma_{QG}$, then the implication $\varphi \to T(\ulcorner\varphi\urcorner)$ itself belongs to $\Sigma_T$. (S3) Modus-ponens closure: $T$ respects logical consequence, for $T(\ulcorner\varphi\to\psi\urcorner)$ together with $T(\ulcorner\varphi\urcorner)$ entails $T(\ulcorner\psi\urcorner)$. (S4) Trans-algorithmicity: the induced theory $\text{Th}_T = \{\varphi \mid T(\ulcorner\varphi\urcorner) \in \Sigma_T\}$ is not recursively enumerable; sentences of arbitrarily high Kolmogorov complexity can still be $T$-true, exceeding the information bound $K_{\mathcal{F}_{QG}}$.
 
 With these properties the external truth predicate certifies every Gödel sentence of $\mathcal{F}_{QG}$ and can single out, for instance, concrete black-hole microstates that elude all algorithmic searches, thereby side-stepping the information-loss puzzle and illuminating Planck-scale dynamics. The non-algorithmic understanding encoded by $\mathcal{R}_{\text{nonalg}}$ and $\Sigma_T$ thus supplies conceptual resources inaccessible to purely computational physics.
 
-For clarity of notation: $\Sigma_{QG}$ is the computable axiom set; $\mathcal{R}_{\text{alg}}$ comprises the standard, effective inference rules; $\mathcal{R}_{\text{nonalg}}$ is the non-effective external truth predicate rule that certifies $T$-truths; $\mathcal{F}_{QG} = \{\mathcal{L}_{QG}, \Sigma_{QG}, \mathcal{R}_{\text{alg}}\}$ denotes the computational core; and $\mathcal{M}_{\text{ToE}} = \{\mathcal{L}_{QG} \cup \{T\}, \Sigma_{QG} \cup \Sigma_T, \mathcal{R}_{\text{alg}} \cup \mathcal{R}_{\text{nonalg}}\}$ denotes the full meta-theory that weds algorithmic deduction to an external truth predicate.
+For clarity of notation: $\Sigma_{QG}$ is the computable axiom set; $\mathcal{R}_{\text{alg}}$ comprises the standard, effective inference rules; $\mathcal{R}_{\text{nonalg}}$ is the non-effective external truth predicate rule that certifies $T$-truths; $\mathcal{F}_{QG} = \{\mathcal{L}_{QG},\Sigma_{QG},\mathcal{R}_{\text{alg}}\}$ denotes the computational core; and $\mathcal{M}_{\text{ToE}} = \{\mathcal{L}_{QG}\cup\{T\},\Sigma_{QG}\cup\Sigma_T,\mathcal{R}_{\text{alg}}\cup\mathcal{R}_{\text{nonalg}}\}$ denotes the full meta-theory that weds algorithmic deduction to an external truth predicate.
 
 Crucially, the appearance of undecidable phenomena in physics already offers empirical backing for $\mathcal{M}_{\text{ToE}}$. Whenever an experiment or exact model realises a property whose truth value provably eludes every recursive procedure, that property functions as a concrete witness to the truth predicate $T(x)$ operating within the fabric of the universe itself. Far from being a purely philosophical embellishment, $\mathcal{M}_{\text{ToE}}$ thus emerges as a structural necessity forced upon us by the physics of undecidable observables. Working at the deepest layer of description, $\mathcal{M}_{\text{ToE}}$ fuses algorithmic and non-algorithmic modes of reasoning into a single coherent architecture, providing the semantic closure that a purely formal system $\mathcal{F}_{QG}$ cannot reach on its own. In this enriched setting, quantum measurements, Planck-scale processes, quantum-gravitational amplitudes and cosmological initial conditions might all become accessible to principled yet non-computable inference, ensuring that no physically meaningful truth is left outside the scope of theoretical understanding. Just as Riemannian geometry, which describes general relativity, or gauge theories, which describe various interactions of the Standard Model, are each actualized in nature, this truth predicate $T(x)$ would also be actualized in nature.
 
 The logical limitations reviewed above bear directly on several open questions in quantum gravity, beginning with the black-hole information paradox [54]. If the microstates responsible for the Bekenstein–Hawking entropy live at Planckian scales, where smooth geometry breaks down, Chaitin's incompleteness theorem suggests that their detailed structure may
 
-Back to 53
-
 ---
 
 14 Mir Faizal et al.
 
-forever lie beyond algorithmic derivation. In such circumstances, classical spacetime must re-emerge through a collective, effectively thermal, behaviour of microscopic degrees of freedom. Yet deciding whether a given many-body system thermalises is itself algorithmically undecidable [55]. Here $\mathcal{M}_{\text{ToE}}$ becomes indispensable: by adjoining the external truth predicate $T(x)$ that certifies physically admissible yet uncomputable properties, the meta-theory legitimates the passage from undecidable Planck-scale microphysics to the macroscopic notion of spacetime thermalization.
+forever lie beyond algorithmic derivation. In such circumstances, classical spacetime must re-emerge through a collective, effectively thermal, behaviour of microscopic degrees of freedom. Yet deciding whether a given many-body system thermalises is itself algorithmically undecidable [55]. Here $\mathcal{M}_{\text{ToE}}$ becomes indispensable: by adjoining the external truth predicate $T(x)$ that certifies physically admissible yet uncomputable properties, the meta-theory legitimizes the passage from undecidable Planck-scale microphysics to the macroscopic notion of spacetime thermalization.
 
 Thermalization already plays a central role in leading quantum-gravity models. In AdS/CFT, bulk perturbations relax into black-hole horizons whose thermodynamic parameters are sharply defined [56]; in the fuzzball paradigm, an ensemble of horizonless microstate geometries reproduces the Hawking spectrum [57]; and in LQG, coarse-graining drives discrete quantum geometries toward a classical continuum phase [58]. Because thermalisation is undecidable in the general many-body setting [55], each route from Planck-scale physics to smooth spacetime must contain steps that transcend algorithmic control. The non-algorithmic scaffold provided by $\mathcal{M}_{\text{ToE}}$ supplies precisely the logical footing required to keep such trans-computational steps consistent.
 
@@ -102,15 +111,15 @@ These technical results respect rather than undermine the principle of sufficien
 
 Consequences of Undecidability in Physics on the Theory of Everything 15
 
-Many undecidable statements encountered in physics ultimately trace back to the halting problem [75], yet non-algorithmic understanding can still apprehend such truths [76]. The Lucas–Penrose proposal that human cognition surpasses formal computation [49–53] finds a mathematical expression in M$_{ToE}$, whose external truth predicate T(x) certifies propositions that no algorithmic verifier can capture. In line with the orchestrated objective-reduction (OR) proposal, they claim that human observers can have a truth predicate because cognitive processes exploit quantum collapse, which is produced by the truth predicate of quantum gravity [52]. This is why they argue that human mathematicians can apprehend Gödelian truths, whereas computers cannot.
+Many undecidable statements encountered in physics ultimately trace back to the halting problem [75], yet non-algorithmic understanding can still apprehend such truths [76]. The Lucas–Penrose proposal that human cognition surpasses formal computation [49–53] finds a mathematical expression in $\mathcal{M}_{\text{ToE}}$, whose external truth predicate $T(x)$ certifies propositions that no algorithmic verifier can capture. In line with the orchestrated objective-reduction (OR) proposal, they claim that human observers can have a truth predicate because cognitive processes exploit quantum collapse, which is produced by the truth predicate of quantum gravity [52]. This is why they argue that human mathematicians can apprehend Gödelian truths, whereas computers cannot.
 
-Non-algorithmic reasoning already supplements GR through the Novikov self-consistency principle [77,78], which imposes a global logical constraint on spacetimes with closed time-like curves. By housing such meta-principles in M$_{ToE}$ one side-steps Gödelian obstructions that would cripple a purely formal F$_{QG}$. As quantum logic is itself undecidable [79,80], any proper wave-function-collapse mechanism must operate outside the algorithmic domain of quantum mechanics. So, such dynamics naturally reside in the non-algorithmic M$_{ToE}$. Gravitationally induced objective-collapse proposals can therefore be interpreted as concrete instantiations of the M$_{ToE}$ action on quantum states [81,82]. Here, the meta-layer supplies a non-algorithmic gravity-triggered collapse that is not derivable from $\Sigma_{QG}$, but is nonetheless well-defined at the semantic level. A key advantage of using objective-collapse models might be cosmological: it could offer an explanation of the quantum-to-classical transition in cosmology, thereby addressing the measurement problem in quantum cosmology [83].
+Non-algorithmic reasoning already supplements GR through the Novikov self-consistency principle [77,78], which imposes a global logical constraint on spacetimes with closed time-like curves. By housing such meta-principles in $\mathcal{M}_{\text{ToE}}$ one side-steps Gödelian obstructions that would cripple a purely formal $\mathcal{F}_{QG}$. As quantum logic is itself undecidable [79,80], any proper wave-function-collapse mechanism must operate outside the algorithmic domain of quantum mechanics. So, such dynamics naturally reside in the non-algorithmic $\mathcal{M}_{\text{ToE}}$. Gravitationally induced objective-collapse proposals can therefore be interpreted as concrete instantiations of the $\mathcal{M}_{\text{ToE}}$ action on quantum states [81,82]. Here, the meta-layer supplies a non-algorithmic gravity-triggered collapse that is not derivable from $\Sigma_{QG}$, but is nonetheless well-defined at the semantic level. A key advantage of using objective-collapse models might be cosmological: it could offer an explanation of the quantum-to-classical transition in cosmology, thereby addressing the measurement problem in quantum cosmology [83].
 
-A growing survey confirms that undecidability permeates diverse areas of physics [84]. These examples jointly reinforce the proposition that a quantum-gravity rooted solely in computation can be neither complete nor consistent, whereas augmenting it with the non-algorithmic resources encoded in M$_{ToE}$ could restore explanatory power without losing logical soundness.
+A growing survey confirms that undecidability permeates diverse areas of physics [84]. These examples jointly reinforce the proposition that a quantum-gravity rooted solely in computation can be neither complete nor consistent, whereas augmenting it with the non-algorithmic resources encoded in $\mathcal{M}_{\text{ToE}}$ could restore explanatory power without losing logical soundness.
 
-The claim that our universe is itself a computer simulation has been advanced in several forms, from Bostrom's statistical "trilemma" [85] to more recent analyses by Chalmers [86] and Deutsch [87]. These proposals assume that every physical truth is reducible to the output of a finite algorithm executed on a sufficiently powerful substrate. Yet this assumption tacitly identifies the full physical theory with its computable slice F$_{QG}$.
+The claim that our universe is itself a computer simulation has been advanced in several forms, from Bostrom's statistical "trilemma" [85] to more recent analyses by Chalmers [86] and Deutsch [87]. These proposals assume that every physical truth is reducible to the output of a finite algorithm executed on a sufficiently powerful substrate. Yet this assumption tacitly identifies the full physical theory with its computable slice $\mathcal{F}_{QG}$.
 
-Our framework separates the computable fragment F$_{QG}$ from the non-algorithmic meta-layer M$_{ToE}$. Because M$_{ToE}$ contains an external truth predicate T(x) that by construction escapes formal verification, any finite algorithm can at best emulate F$_{QG}$ while systematically omitting the meta-theoretic truths enforced by T(x). Consequently, no simulation could in principle reproduce what would otherwise be the full underlying structure of the physics of our universe. Our analysis instead suggests that genuine physical reality embeds non-computational content that cannot be instantiated on a Turing-equivalent device. Since it is impossible to simulate a complete and consistent universe, our universe is definitely not a simulation. As the universe is produced by M$_{ToE}$, the simulation hypothesis is logically impossible rather than merely implausible.
+Our framework separates the computable fragment $\mathcal{F}_{QG}$ from the non-algorithmic meta-layer $\mathcal{M}_{\text{ToE}}$. Because $\mathcal{M}_{\text{ToE}}$ contains an external truth predicate $T(x)$ that by construction escapes formal verification, any finite algorithm can at best emulate $\mathcal{F}_{QG}$ while systematically omitting the meta-theoretic truths enforced by $T(x)$. Consequently, no simulation could in principle reproduce what would otherwise be the full underlying structure of the physics of our universe. Our analysis instead suggests that genuine physical reality embeds non-computational content that cannot be instantiated on a Turing-equivalent device. Since it is impossible to simulate a complete and consistent universe, our universe is definitely not a simulation. As the universe is produced by $\mathcal{M}_{\text{ToE}}$, the simulation hypothesis is logically impossible rather than merely implausible.
 
 The arguments presented here suggest that neither 'its' nor 'bits' may be sufficient to describe reality. Rather, a deeper description, expressed not in terms of information but in terms of non-algorithmic understanding, is required for a complete and consistent theory of everything.
 
@@ -120,7 +129,7 @@ All authors have the same contribution.
 
 ---
 
-16 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mir Faizal et al.
+16 Mir Faizal et al.
 
 ## Data Availability
 
@@ -190,7 +199,7 @@ Consequences of Undecidability in Physics on the Theory of Everything 17
 
 [21] C. M. Hull, "A Geometry for Non-Geometric String Backgrounds", Journal of High Energy Physics **10**, 065 (2005). DOI: 10.1088/1126-6708/2005/10/065
 
-[22] D. Jafferis, A. Zlokapa, J. D. Lykken, D. K. Kolchmeyer, S. I. Davis, N. Lauk, H. Neven, and M. SPIROPULU, "Traversable wormhole dynamics on a quantum processor", Nature **612**, 51 (2022). DOI: 10.1038/s41586-022-05424-3
+[22] D. Jafferis, A. Zlokapa, J. D. Lykken, D. K. Kolchmeyer, S. I. Davis, N. Lauk, H. Neven, and M. Spiropulu, "Traversable wormhole dynamics on a quantum processor", Nature **612**, 51 (2022). DOI: 10.1038/s41586-022-05424-3
 
 [23] M. Van Raamsdonk, "Spacetime from bits", Science **370**, 198 (2020). DOI: 10.1126/science.aay9560
 
@@ -204,7 +213,7 @@ Consequences of Undecidability in Physics on the Theory of Everything 17
 
 [26] E. Witten, "Noncommutative Geometry and String Field Theory", Nucl. Phys. B **268**, 253 (1986). DOI: 10.1016/0550-3213(86)90155-0
 
-[27] H. Ziaepour, "Comparing Quantum Gravity Models: String Theory, Loop Quantum Gravity, and Entanglement Gravity versus SU(∞)-QGR", Symmetry **14**, 58 (2022). DOI: 10.3390/sym14010058
+[27] H. Ziaeepour, "Comparing Quantum Gravity Models: String Theory, Loop Quantum Gravity, and Entanglement Gravity versus $\text{SU}(\infty)$-QGR", Symmetry **14**, 58 (2022). DOI: 10.3390/sym14010058
 
 [28] M. Faizal, A. Shabir, and A. K. Khan, "Consequences of Gödel theorems on third quantized theories like string field theory and group field theory", Nucl. Phys. B **1010**, 116774 (2025). DOI: 10.1016/j.nuclphysb.2024.116774
 
@@ -228,7 +237,7 @@ Consequences of Undecidability in Physics on the Theory of Everything 17
 
 [38] T. Thiemann, "Modern Canonical Quantum General Relativity", Cambridge University Press, (2007). DOI: https://doi.org/10.1017/CBO9780511755682
 
-[39] M. B. Green and J. H. Schwarz, "Anomaly cancellation in supersymmetric d=10 gauge theory", Physics Letters B **149**, 117 (1984). DOI: 10.1016/0370-2693(84)91565-X
+[39] M. B. Green and J. H. Schwarz, "Anomaly cancellation in supersymmetric $d=10$ gauge theory", Physics Letters B **149**, 117 (1984). DOI: 10.1016/0370-2693(84)91565-X
 
 [40] A. Ashtekar, "New variables for classical and quantum gravity", Physical Review Letters **57**, 2244 (1986). DOI: https://doi.org/10.1103/PhysRevLett.57.2244
 
@@ -236,43 +245,43 @@ Consequences of Undecidability in Physics on the Theory of Everything 17
 
 Consequences of Undecidability in Physics on the Theory of Everything 19
 
-[41] K. Gödel, “Über formal unentscheidbare sätze der principia mathematica und verwandter systeme i”, Monatshefte für Mathematik **38**, 173 (1931). DOI: https://doi.org/10.1007/BF01700692
+[41] K. Gödel, "Über formal unentscheidbare sätze der principia mathematica und verwandter systeme i", Monatshefte für Mathematik **38**, 173 (1931). DOI: https://doi.org/10.1007/BF01700692
 
-[42] P. Smith, “An Introduction to Gödel’s Theorems”. Cambridge University Press, Cambridge, 2nd ed., (2007). DOI: https://doi.org/10.1017/CBO9781139149105
+[42] P. Smith, "An Introduction to Gödel's Theorems". Cambridge University Press, Cambridge, 2nd ed., (2007). DOI: https://doi.org/10.1017/CBO9781139149105
 
-[43] A. Tarski, “Pojecie Prawdy w Jezykach Nauk Dedukcyjnych (The Concept of Truth in the Languages of the Deductive Sciences)”, Prace Towarzystwa Naukowego Warszawskiego, Wydział III **34** (1933). https://openlibrary.org/books/0L5813583M/Poje%CC%A8cie_prawdy_w_je%CC%A8zykach_nauk_dedukcyjnych
+[43] A. Tarski, "Pojecie Prawdy w Jezykach Nauk Dedukcyjnych (The Concept of Truth in the Languages of the Deductive Sciences)", Prace Towarzystwa Naukowego Warszawskiego, Wydział III **34** (1933). https://openlibrary.org/books/0L5813583M/Poje%CC%A8cie_prawdy_w_je%CC%A8zykach_nauk_dedukcyjnych
 
-[44] A. Tarski, “Logic, Semantics, Metamathematics: Papers from 1923 to 1938”. Hackett Publishing Company, Indianapolis, (1983). DOI: http://dx.doi.org/10.2307/2275031
+[44] A. Tarski, "Logic, Semantics, Metamathematics: Papers from 1923 to 1938". Hackett Publishing Company, Indianapolis, (1983). DOI: http://dx.doi.org/10.2307/2275031
 
-[45] M. Faizal, A. Shabir, and A. K. Khan, “Implications of Tarski’s undefinability theorem on the Theory of Everything”, EPL **148**, 39001 (2024). DOI: 10.1209/0295-5075/ad80c2
+[45] M. Faizal, A. Shabir, and A. K. Khan, "Implications of Tarski's undefinability theorem on the Theory of Everything", EPL **148**, 39001 (2024). DOI: 10.1209/0295-5075/ad80c2
 
-[46] G. J. Chaitin, “A theory of program size formally identical to information theory”, Journal of the ACM **22**, 329 (1975). DOI: 10.1145/321892.321894
+[46] G. J. Chaitin, "A theory of program size formally identical to information theory", Journal of the ACM **22**, 329 (1975). DOI: 10.1145/321892.321894
 
-[47] G. J. Chaitin, “Meta Math!: The Quest for Omega”, Pantheon Books, New York, (2004). DOI: https://doi.org/10.48550/arXiv.math/0404335
+[47] G. J. Chaitin, "Meta Math!: The Quest for Omega", Pantheon Books, New York, (2004). DOI: https://doi.org/10.48550/arXiv.math/0404335
 
-[48] S. Kritchman and R. Raz, “The surprise examination paradox and the second incompleteness theorem”, Notices of the AMS **57**, 1454 (2010). DOI: 10.48550/arXiv.1011.4974
+[48] S. Kritchman and R. Raz, "The surprise examination paradox and the second incompleteness theorem", Notices of the AMS **57**, 1454 (2010). DOI: 10.48550/arXiv.1011.4974
 
-[49] J. R. Lucas, “Minds, machines and gödel”, Philosophy **36**, 112 (1961). DOI: 10.1017/S0031819100057983
+[49] J. R. Lucas, "Minds, machines and gödel", Philosophy **36**, 112 (1961). DOI: 10.1017/S0031819100057983
 
-[50] R. Penrose, “Gödel, the mind, and the laws of physics”, in Kurt Gödel’s and the foundations of mathematics: horizons of truth, 339. Cambridge University Press, (2011). DOI: https://doi.org/10.1017/CBO9780511974236.019
+[50] R. Penrose, "Gödel, the mind, and the laws of physics", in Kurt Gödel's and the foundations of mathematics: horizons of truth, 339. Cambridge University Press, (2011). DOI: https://doi.org/10.1017/CBO9780511974236.019
 
-[51] R. Penrose, “The nonalgorithmic mind”, Behavioral and Brain Sciences **13**, 692 (1990). DOI: 10.1017/s0140525x0008105x
+[51] R. Penrose, "The nonalgorithmic mind", Behavioral and Brain Sciences **13**, 692 (1990). DOI: 10.1017/s0140525x0008105x
 
-[52] S. Hameroff and R. Penrose, “Consciousness in the universe: A review of the ’orch or’ theory”, Physics of Life Reviews **11**, 39 (2014). DOI: 10.1016/j.plrev.2013.08.002
+[52] S. Hameroff and R. Penrose, "Consciousness in the universe: A review of the 'orch or' theory", Physics of Life Reviews **11**, 39 (2014). DOI: 10.1016/j.plrev.2013.08.002
 
-[53] J. P. S., “The lucas-penrose arguments”, in The Argument of Mathematics, p. Chapter 7. Springer, (2023). DOI: 10.1007/978-3-031-64217-3_7
+[53] J. P. S., "The lucas-penrose arguments", in The Argument of Mathematics, p. Chapter 7. Springer, (2023). DOI: 10.1007/978-3-031-64217-3_7
 
-[54] A. Almheiri, T. Hartman, J. Maldacena, E. Shaghoulian, and A. Tajdini, “The entropy of hawking radiation”, Reviews of Modern Physics **93**, 035002 (2021). DOI: 10.1103/RevModPhys.93.035002
+[54] A. Almheiri, T. Hartman, J. Maldacena, E. Shaghoulian, and A. Tajdini, "The entropy of hawking radiation", Reviews of Modern Physics **93**, 035002 (2021). DOI: 10.1103/RevModPhys.93.035002
 
-[55] N. Shiraishi and K. Matsumoto, “Undecidability in quantum thermalization”, Nature Communications **12**, 5084 (2021). DOI: 10.1038/s41467-021-25053-0
+[55] N. Shiraishi and K. Matsumoto, "Undecidability in quantum thermalization", Nature Communications **12**, 5084 (2021). DOI: 10.1038/s41467-021-25053-0
 
-[56] P. M. Chesler and L. G. Yaffe, “Horizon formation and far-from-equilibrium isotropization in a supersymmetric yang-mills plasma”, Phys. Rev. Lett. **102** 211601 (2009). DOI: 10.1103/PhysRevLett.102.211601
+[56] P. M. Chesler and L. G. Yaffe, "Horizon formation and far-from-equilibrium isotropization in a supersymmetric yang-mills plasma", Phys. Rev. Lett. **102** 211601 (2009). DOI: 10.1103/PhysRevLett.102.211601
 
 ---
 
 20 Mir Faizal et al.
 
-[57] S. D. Mathur, "The fuzzball proposal for black holes: An elementary review", Fortschr. Phys. **53**, 793 (2005). DOI: 10.1002/prop.200410203
+[57] S. D. Mathur, "The fuzzball proposal for black holes: An elementary review", Fortsch. Phys. **53**, 793 (2005). DOI: 10.1002/prop.200410203
 
 [58] S. Steinhaus, "Coarse graining spin foam quantum gravity—a review", Frontiers in Physics **8** (2020). DOI: 10.3389/fphy.2020.00295
 
@@ -308,35 +317,35 @@ Consequences of Undecidability in Physics on the Theory of Everything 19
 
 Consequences of Undecidability in Physics on the Theory of Everything 21
 
-[73] F. Amijee, “Principle of sufficient reason”, in Encyclopedia of Early Modern Philosophy and the Sciences, D. Jalobeanu and C. T. Wolfe, eds. Springer, (2021). DOI: 10.1007/978-3-319-20791-9_593-1
+[73] F. Amijee, "Principle of sufficient reason", in Encyclopedia of Early Modern Philosophy and the Sciences, D. Jalobeanu and C. T. Wolfe, eds. Springer, (2021). DOI: 10.1007/978-3-319-20791-9_593-1
 
-[74] G. W. Leibniz, “Discourse on Metaphysics”, Hackett Publishing Company, Indianapolis, (1996). A seminal work where Leibniz famously asserts that "nothing happens without a reason". https://www.earlymoderntexts.com/assets/pdfs/leibniz1686d.pdf.
+[74] G. W. Leibniz, "Discourse on Metaphysics", Hackett Publishing Company, Indianapolis, (1996). A seminal work where Leibniz famously asserts that "nothing happens without a reason". https://www.earlymoderntexts.com/assets/pdfs/leibniz1686d.pdf.
 
-[75] C. H. Bennett, “Undecidable dynamics”, Nature **346**, 606 (1990). DOI: 10.1038/346606a0
+[75] C. H. Bennett, "Undecidable dynamics", Nature **346**, 606 (1990). DOI: 10.1038/346606a0
 
-[76] I. Stewart, “Deciding the undecidable”, Nature **352**, 664 (1991). DOI: 10.1038/352664a0
+[76] I. Stewart, "Deciding the undecidable", Nature **352**, 664 (1991). DOI: 10.1038/352664a0
 
-[77] J. L. Friedman, M. S. Morris, I. D. Novikov, F. Echeverria, G. Klinkhammer, K. S. Thorne, and U. Yurtsever, “Cauchy problem in spacetimes with closed timelike curves”, Physical Review D **42**, 1915 (1990). DOI: 10.1103/PhysRevD.42.1915
+[77] J. L. Friedman, M. S. Morris, I. D. Novikov, F. Echeverria, G. Klinkhammer, K. S. Thorne, and U. Yurtsever, "Cauchy problem in spacetimes with closed timelike curves", Physical Review D **42**, 1915 (1990). DOI: 10.1103/PhysRevD.42.1915
 
-[78] I. D. Novikov, “Time machine and self-consistent evolution in problems with self-interaction”, Phys. Rev. D **45** (1992). DOI: https://doi.org/10.1103/PhysRevD.45.1989
+[78] I. D. Novikov, "Time machine and self-consistent evolution in problems with self-interaction", Phys. Rev. D **45** (1992). DOI: https://doi.org/10.1103/PhysRevD.45.1989
 
-[79] M. Van den Nest and H. J. Briegel, “Measurement-based quantum computation and undecidable logic”, Foundations of Physics **38**, 448 (2008). DOI: 10.1007/s10701-008-9212-6
+[79] M. Van den Nest and H. J. Briegel, "Measurement-based quantum computation and undecidable logic", Foundations of Physics **38**, 448 (2008). DOI: 10.1007/s10701-008-9212-6
 
-[80] S. Lloyd, “Quantum-mechanical computers and uncomputability”, Physical Review Letters **71**, 943 (1993). DOI: 10.1103/PhysRevLett.71.943
+[80] S. Lloyd, "Quantum-mechanical computers and uncomputability", Physical Review Letters **71**, 943 (1993). DOI: 10.1103/PhysRevLett.71.943
 
-[81] R. Penrose, “On gravity’s role in quantum state reduction”, General Relativity and Gravitation **28**, 581 (1996). DOI: 10.1007/BF02105068
+[81] R. Penrose, "On gravity's role in quantum state reduction", General Relativity and Gravitation **28**, 581 (1996). DOI: 10.1007/BF02105068
 
-[82] L. Diósi, “A universal master equation for the gravitational violation of quantum mechanics”, Physics Letters A **120**, 377 (1987). DOI: https://doi.org/10.1016/0375-9601(87)90681-5
+[82] L. Diósi, "A universal master equation for the gravitational violation of quantum mechanics", Physics Letters A **120**, 377 (1987). DOI: https://doi.org/10.1016/0375-9601(87)90681-5
 
-[83] J. L. Gaona-Reyes, L. Menéndez-Pidal, M. Faizal, and M. Carlesso, “Spontaneous collapse models lead to the emergence of classicality of the Universe”, JHEP **02**, 193 (2024). DOI: https://doi.org/10.1007/JHEP02(2024)193
+[83] J. L. Gaona-Reyes, L. Menéndez-Pidal, M. Faizal, and M. Carlesso, "Spontaneous collapse models lead to the emergence of classicality of the Universe", JHEP **02**, 193 (2024). DOI: https://doi.org/10.1007/JHEP02(2024)193
 
-[84] Álvaro Perales-Eceiza, T. Cubitt, M. Gu, D. Pérez-García, and M. M. Wolf, “Undecidability in physics: a review”, (2024). https://arxiv.org/abs/2410.16532.
+[84] Álvaro Perales-Eceiza, T. Cubitt, M. Gu, D. Pérez-García, and M. M. Wolf, "Undecidability in physics: a review", (2024). https://arxiv.org/abs/2410.16532.
 
-[85] N. Bostrom, “Are we living in a computer simulation?”, Philosophical Quarterly **53**, 243 (2003). DOI: 10.1111/1467-9213.00309
+[85] N. Bostrom, "Are we living in a computer simulation?", Philosophical Quarterly **53**, 243 (2003). DOI: 10.1111/1467-9213.00309
 
-[86] S. Guttenplan, “David J. Chalmers, Reality+: Virtual Worlds and the Problems of Philosophy”, 60. (2023). DOI: 10.1007/s12115-023-00832-1
+[86] S. Guttenplan, "David J. Chalmers, Reality+: Virtual Worlds and the Problems of Philosophy", 60. (2023). DOI: 10.1007/s12115-023-00832-1
 
-[87] D. Deutsch, “The Fabric of Reality”, Penguin, London, (1997). https://www.daviddeutsch.org.uk/books/the-fabric-of-reality/.
+[87] D. Deutsch, "The Fabric of Reality", Penguin, London, (1997). https://www.daviddeutsch.org.uk/books/the-fabric-of-reality/.
 
 ---
 
