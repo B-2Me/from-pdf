@@ -5,15 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Serverless PDF to Markdown</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; line-height: 1.6; }
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 50px auto; padding: 0 20px; line-height: 1.6; color: #24292f; }
+    .hero { text-align: center; margin-bottom: 40px; }
     .btn { display: inline-block; padding: 12px 24px; background: #2ea44f; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
     .btn:hover { background: #2c974b; }
+    h1, h2, h3 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 1.5em; }
+    .hero h1 { border-bottom: none; margin-top: 0; }
+    code { background: #afb8c133; padding: 0.2em 0.4em; border-radius: 6px; font-size: 85%; font-family: monospace; }
+    pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow: auto; line-height: 1.4; }
+    pre code { background: transparent; padding: 0; }
+    ul, ol { padding-left: 20px; }
+    li { margin-bottom: 8px; }
   </style>
 </head>
 <body>
-  <h1>PDF to Markdown Converter</h1>
-  <p>This tool uses a deep-learning extraction pipeline to convert your PDFs into highly accurate Markdown files, complete with extracted images.</p>
-  <p>To process a file, open a new issue in our repository and drag-and-drop your PDF into the description box. The automated pipeline will reply with your download links.</p>
-  <a class="btn" href="https://github.com/B-2Me/from-pdf/issues/new" target="_blank">Upload PDF via Issues</a>
+  <div class="hero">
+    <h1>PDF to Markdown Converter</h1>
+    <p>An automated, zero-server pipeline that converts PDF documents into pristine, Obsidian-ready Markdown using a flexible suite of OCR and AI engines.</p>
+    <a class="btn" href="https://github.com/B-2Me/from-pdf/issues/new" target="_blank">Upload PDF via Issues</a>
+  </div>
+
+  <h2>How to use</h2>
+  <ol>
+    <li>Navigate to the <strong>Issues</strong> tab (or click the button above).</li>
+    <li>Click <strong>New Issue</strong>.</li>
+    <li>Drag and drop your <code>.pdf</code> file into the issue description box.</li>
+    <li><em>(Optional)</em> Add slash commands to the issue description to customize the extraction.</li>
+    <li>Click <strong>Submit new issue</strong>.</li>
+  </ol>
+  <p>Within a few minutes, a GitHub Action bot will comment on your issue containing direct download links for the raw <code>.md</code> file and a <code>.zip</code> archive containing the Markdown and any extracted images.</p>
+
+  <h2>Advanced Configuration (Slash Commands)</h2>
+  <p>You can completely customize how the pipeline processes your PDF by dropping these slash commands anywhere in your issue body.</p>
+
+  <h3>Engine Selection</h3>
+  <p>The pipeline supports three distinct architectural paths. If no engine is specified, the system defaults to <code>marker</code>.</p>
+  <ul>
+    <li><code>/engine=marker</code> <strong>(Default):</strong> Lightning-fast extraction using the PDF's native digital text layer. Zero LLM calls. Best for clean, natively digital PDFs.</li>
+    <li><code>/engine=marker-llm</code><strong>:</strong> Extracts text rapidly using Marker, but routes the output through a cloud LLM to perfectly format complex tables, fix math, and clean up the structural Markdown.</li>
+    <li><code>/engine=vision</code><strong>:</strong> Bypasses Marker entirely. Converts PDF pages into images and uses a multimodal Vision AI to holistically read and transcribe the page. Best for heavily corrupted PDFs, scanned documents, or complex visual math.</li>
+  </ul>
+
+  <h3>Modifiers & Overrides</h3>
+  <ul>
+    <li><code>/force-ocr</code><strong>:</strong> Tells Marker to ignore the PDF's digital text layer and boot up its neural network to visually read every character. <strong>Use only for image-only scans.</strong> <em>(Warning: Runs locally on GitHub Actions CPU and takes ~6 minutes per page. Do not use with <code>/engine=vision</code>.)</em></li>
+    <li><code>/page-range=X-Y</code><strong>:</strong> Processes only a specific chunk of the document (e.g., <code>/page-range=1-20</code>). The outputs are dynamically named so you can process large books in safe increments without overwriting previous chunks.</li>
+    <li><code>/timeout=X</code><strong>:</strong> Sets the maximum execution time in minutes before the engine gracefully stops and packages whatever pages it has finished (e.g., <code>/timeout=30</code>). <strong>Default:</strong> <code>15</code>.</li>
+    <li><code>/model=X</code><strong>:</strong> Overrides the OpenRouter LLM used by the <code>vision</code> or <code>marker-llm</code> engines (e.g., <code>/model=qwen/qwen-2.5-72b-instruct:free</code>).</li>
+  </ul>
+
+  <h2>Example Workflows</h2>
+  
+  <p><strong>1. The Fast Default (Clean Digital PDFs)</strong><br>
+  Just drop the PDF in the issue. No commands needed. Runs standard Marker text extraction in seconds.</p>
+
+  <p><strong>2. The "Bad Scan" Fixer</strong></p>
+<pre><code>/engine=marker-llm
+/force-ocr
+/page-range=1-5</code></pre>
+  <p><em>Forces Marker to visually read a scanned document, then uses an LLM to clean up the messy OCR formatting. Limited to 5 pages to avoid the 15-minute CPU timeout.</em></p>
+
+  <p><strong>3. The Complex Math & Layout Reader</strong></p>
+<pre><code>/engine=vision
+/page-range=10-25
+/timeout=30</code></pre>
+  <p><em>Takes pictures of pages 10 through 25 and lets the default Vision AI perfectly transcribe the LaTeX math and tables, giving it an extended 30-minute window to finish the job.</em></p>
+
+  <h2>Maintenance</h2>
+  <p>Processed files are stored in the <code>conversions/</code> directory and are automatically purged after 30 days to optimize repository storage.</p>
 </body>
 </html>
