@@ -46,41 +46,55 @@ jobs:
           PDF_URL=$(echo "${{ github.event.issue.body }}" | grep -oP 'https://github\.com/user-attachments/(files|assets)/[^)]+\.pdf' | head -n 1)
           if [ -z "$PDF_URL" ]; then exit 1; fi
           curl -L -o document.pdf "$PDF_URL"
-          
-          # Convert PDF to images for the Vision model (always runs so they are ready)
-          pdftoppm -png -r 150 document.pdf page
 
       - name: Parse Slash Commands
         run: |
-          # 1. Engine Routing
-          ENGINE="vision"
+          # 1. Engine Routing (Default is now fast Marker base)
+          ENGINE="marker"
+          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=vision"; then ENGINE="vision"; fi
           if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker-llm"; then ENGINE="marker-llm"; fi
-          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker"; then ENGINE="marker"; fi
           echo "ENGINE=$ENGINE" >> $GITHUB_ENV
           echo "-> Engine: $ENGINE"
 
-          # 2. Page Range
+          # 2. OCR Mode Override
+          if echo "${{ github.event.issue.body }}" | grep -iq "/force-ocr"; then
+            echo "OCR_ARG=--force_ocr" >> $GITHUB_ENV
+            echo "-> OCR: Forced (Neural Vision OCR)"
+          else
+            echo "OCR_ARG=" >> $GITHUB_ENV
+            echo "-> OCR: Standard (Fast Native Layer)"
+          fi
+
+          # 3. Page Range & File Suffix
           PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
             echo "PAGE_ARG=--page_range $PAGE_RANGE" >> $GITHUB_ENV
+            echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
             echo "-> Page Range: $PAGE_RANGE"
+            
+            # Setup arguments for pdftoppm if Vision is used
+            FIRST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f1)
+            LAST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f2)
+            echo "PDFTOPPM_ARGS=-f $FIRST_PAGE -l $LAST_PAGE" >> $GITHUB_ENV
           else
             echo "PAGE_ARG=" >> $GITHUB_ENV
+            echo "FILE_SUFFIX=full_document" >> $GITHUB_ENV
+            echo "PDFTOPPM_ARGS=" >> $GITHUB_ENV
           fi
 
-          # 3. Timeout Override (Default 15 mins)
+          # 4. Timeout Override
           TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
           if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="15"; fi
           echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
           echo "-> Timeout: ${TIMEOUT_MINS}m"
 
-          # 4. Model Override
+          # 5. Model Override
           CUSTOM_MODEL=$(echo "${{ github.event.issue.body }}" | grep -oP '/model(?:=|\s+)\K[^\s]+' | head -n 1)
           echo "CUSTOM_MODEL=$CUSTOM_MODEL" >> $GITHUB_ENV
           if [ -n "$CUSTOM_MODEL" ]; then echo "-> Model Override: $CUSTOM_MODEL"; fi
 
       # ==========================================
-      # ENGINE 1: PURE VISION (DEFAULT)
+      # ENGINE 1: PURE VISION
       # ==========================================
       - name: Engine | Vision Pipeline
         if: env.ENGINE == 'vision'
@@ -89,7 +103,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           mkdir -p conversions/issue-${{ github.event.issue.number }}/vision
-          mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
+          pdftoppm -png -r 150 $PDFTOPPM_ARGS document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
           
           cat << 'EOF' > run_vision.py
           import base64, os, sys, glob, re, time
@@ -100,16 +114,19 @@ jobs:
               api_key=os.environ.get("OPENROUTER_API_KEY"),
           )
 
-          model_to_use = os.environ.get("CUSTOM_MODEL")
-          if not model_to_use:
-              model_to_use = "inclusionai/ling-3.0-flash-vl:free"
+          model_to_use = os.environ.get("CUSTOM_MODEL") or "inclusionai/ling-3.0-flash-vl:free"
+          file_suffix = os.environ.get("FILE_SUFFIX")
 
           def get_page_num(filename):
-              m = re.search(r'page-(\d+)\.png$', filename)
+              m = re.search(r'page.*?(\d+)\.png$', filename)
               return int(m.group(1)) if m else 0
 
           image_files = sorted(glob.glob(f"{sys.argv[1]}/vision/page-*.png"), key=get_page_num)
-          final_md = []
+          out_file = f"{sys.argv[1]}/document_vision_{file_suffix}.md"
+
+          # Wipe the file only at the start of this specific chunk run
+          with open(out_file, "w", encoding="utf-8") as f:
+              f.write("")
 
           print(f"-> Found {len(image_files)} pages. Processing with {model_to_use}...", flush=True)
 
@@ -138,24 +155,22 @@ jobs:
                               }
                           ]
                       )
-                      final_md.append(response.choices[0].message.content)
+                      with open(out_file, "a", encoding="utf-8") as f:
+                          f.write(response.choices[0].message.content + "\n\n---\n\n")
                       break
                   except Exception as e:
                       print(f"     ❌ Attempt {attempt} failed: {e}", flush=True)
                       time.sleep(5)
                       attempt += 1
-              time.sleep(2) # Buffer to prevent free-tier 429 limits
+              time.sleep(2)
 
-          out_file = f"{sys.argv[1]}/document_vision.md"
-          with open(out_file, "w", encoding="utf-8") as f:
-              f.write("\n\n---\n\n".join(final_md))
-          print(f"✅ Vision transcription saved to {out_file}", flush=True)
+          print(f"✅ Vision transcription completed.", flush=True)
           EOF
           
-          timeout ${TIMEOUT_MINUTES}m python run_vision.py conversions/issue-${{ github.event.issue.number }}
+          timeout ${TIMEOUT_MINUTES}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
 
       # ==========================================
-      # ENGINE 2: MARKER CPU
+      # ENGINE 2: MARKER CPU (DEFAULT FAST)
       # ==========================================
       - name: Engine | Marker Base
         if: env.ENGINE == 'marker'
@@ -163,10 +178,10 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
-            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output $PAGE_ARG || echo "Process finished or timed out."
+            --mode fast $OCR_ARG --keep_pagefooter_in_output --keep_pageheader_in_output$PAGE_ARG || echo "⚠️ Marker Base timed out or failed."
             
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${FILE_SUFFIX}.md
           fi
 
       # ==========================================
@@ -183,13 +198,13 @@ jobs:
           echo "Running Marker with LLM: $LLM_MODEL"
           
           timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
-            --mode fast --force_ocr --keep_pagefooter_in_output --keep_pageheader_in_output \
+            --mode fast $OCR_ARG --keep_pagefooter_in_output --keep_pageheader_in_output \
             --use_llm --llm_service marker.services.openai.OpenAIService \
             --openai_model "$LLM_MODEL" \
-            $PAGE_ARG || echo "Process finished or timed out."
+            $PAGE_ARG || echo "⚠️ Marker LLM timed out or failed."
           
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm_${FILE_SUFFIX}.md
           fi
 
       # ==========================================
@@ -198,12 +213,13 @@ jobs:
       - name: Package for Obsidian
         if: always()
         run: |
-          cd conversions/issue-${{ github.event.issue.number }}
+          cd conversions/issue-${{ github.event.issue.number }} || exit 0
           mkdir -p obsidian_ready
           cp document_*.md obsidian_ready/ 2>/dev/null || true
-          find . -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -exec cp {} obsidian_ready/ \; 2>/dev/null || true
           
-          zip -r obsidian_ready.zip obsidian_ready/
+          find . -type f \( -iname \*.jpg -o -iname \*.jpeg -o -iname \*.png \) -not -path "*/vision/*" -not -path "*/obsidian_ready/*" -exec cp {} obsidian_ready/ \; 2>/dev/null || true
+          
+          zip -r obsidian_ready.zip obsidian_ready/ || true
           zip -r debug_archive.zip . -i \*/document/\* run_vision.py 2>/dev/null || true
 
       - name: Final Commit & Push
@@ -211,10 +227,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add conversions/issue-${{ github.event.issue.number }}/
-          git commit -m "Generated markdown using ${ENGINE} engine [skip ci]" || echo "No final changes to commit"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git add conversions/issue-${{ github.event.issue.number }}/ || true
+          git commit -m "Generated markdown using ${ENGINE} engine for${FILE_SUFFIX} [skip ci]" || echo "No final changes to commit"
+          git pull --rebase origin main || true
+          git push origin HEAD:main || true
 
       - name: Post Success Comment
         if: always()
@@ -236,7 +252,7 @@ jobs:
                 issue_number: issueNum,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `❌ **Conversion Failed or Timed Out!**\n\nThe \`${engine}\` engine did not complete within the ${process.env.TIMEOUT_MINUTES} minute timeout window.`
+                body: `⚠️ **Warning: No Output Generated**\n\nThe \`${engine}\` engine ran out of time or crashed before generating a valid Markdown file.`
               });
               return;
             }
@@ -250,5 +266,5 @@ jobs:
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n\n### 🔬 Output Files (Chunks Safely Accumulated):\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
