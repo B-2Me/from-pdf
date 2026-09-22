@@ -87,25 +87,25 @@ If we can prove that spacetime is the interface of a structure analogous to a "d
 
 and would become an emergent phenomenon. This would unify two ideas that are currently separate: general relativity (geometric) and quantum mechanics (informational). The greatest open problem in physics today is unifying general relativity with quantum mechanics, but if spacetime is emergent, gravity would not need to be quantized directly; it would arise as a collective effect of the underlying structure (just as elasticity arises from atoms). This would enable us to resolve paradoxes such as:
 
-\* Singularities (black holes, Big Bang).
+* Singularities (black holes, Big Bang).
 
-\* Mathematical infinities.
+* Mathematical infinities.
 
-\* Explaining why gravity is so weak.
+* Explaining why gravity is so weak.
 
-\* Understanding the origin of the geometry of the universe.
+* Understanding the origin of the geometry of the universe.
 
 In the case of black holes, the information paradox could be resolved, as the event horizon would be like a resolution limit of the “screen,” and entropy would become a count of the fundamental states of the structure. The Big Bang would cease to be a singularity and would become a phase transition, like when a screen turns on or when the system begins to “render” the interface (spacetime). A theory of emergent spacetime could lead to new types of physical computation, control of geometric states (gravity as an emergent effect), technologies based on fundamental information, and extremely precise sensors of the fabric of space. If it were proven that spacetime is emergent from a screen-like structure, this would:
 
-\* Redefine what is “real.”
+* Redefine what is “real.”
 
-\* Resolve the greatest problem of modern physics (unifying relativity and quantum mechanics).
+* Resolve the greatest problem of modern physics (unifying relativity and quantum mechanics).
 
-\* Unify geometry, information, and quantum mechanics.
+* Unify geometry, information, and quantum mechanics.
 
-\* Open up new experimental predictions.
+* Open up new experimental predictions.
 
-\* Create technologies that are unimaginable today.
+* Create technologies that are unimaginable today.
 
 It would be one of the greatest discoveries in human history; therefore, I invite you to embark with me in this book on an exploration and analysis of all the evidence that can lead us to this conclusion.
 
@@ -153,13 +153,13 @@ If the functioning of spacetime is analogous to the rendering of animated images
 
 imagine this same box moving on a conveyor belt—each frame or instant of time along this belt represents a three-dimensional cross-section of the existence of this box, like a frame of a running film. This means that the 4th dimension is a composite of infinite slices of three-dimensional images, where all the geometric possibilities of spaces and movements possible to be rendered on the universal interface/screen (spacetime) are encoded; each image plane corresponds to a location in space at a particular moment in time, just as in a modern game it is possible to generate trillions of different images from mathematical and physical rules, calculating variables and states that are generated through assets (textures and 3D models). To understand this, think of the Speed of Light not as "light," but as the maximum speed of data transmission between two points of the universal screen.
 
-\* The "Giant Object" Example: Imagine a gigantic spaceship, 300,000 kilometers long (the distance light travels in 1 second).
+* The "Giant Object" Example: Imagine a gigantic spaceship, 300,000 kilometers long (the distance light travels in 1 second).
 
-\* The Synchrony Problem: If you give a command for this ship to accelerate, the electrical (or physical) signal that leaves the engine at the rear takes a full 1 second to reach the nose of the ship.
+* The Synchrony Problem: If you give a command for this ship to accelerate, the electrical (or physical) signal that leaves the engine at the rear takes a full 1 second to reach the nose of the ship.
 
-\* The "Time Slice": During this 1 second, the rear is already moving, but the nose is still stationary. For the interface of the universe, the "rear" is at Time 1, but the "nose" is still receiving the information from Time 0.
+* The "Time Slice": During this 1 second, the rear is already moving, but the nose is still stationary. For the interface of the universe, the "rear" is at Time 1, but the "nose" is still receiving the information from Time 0.
 
-\* Conclusion: An extensive object never exists in a single absolute "now." It is "spread out" across different update states of the graphics engine.
+* Conclusion: An extensive object never exists in a single absolute "now." It is "spread out" across different update states of the graphics engine.
 
 Why does this happen? (The HDMI Cable Analogy): Imagine you have a monitor so large that the HDMI cable takes a perceptible amount of time to carry the signal from the video card to the pixels at the top of the screen. The pixels at the bottom show the current frame (Frame 100). The pixels at the top are still showing the previous frame (Frame 99) because the information is still "traveling" through the cable. In the universe, the "cable speed" is the speed of light. Since nothing travels faster than that, the front of a galaxy is, literally, in a different "frame" of time than the back of the same galaxy relative to any observer. Physical objects are, in fact, data processes; if an object were a "solid" and "single" thing, it should move all at once. But physics shows that it moves as an "information wave."
 
