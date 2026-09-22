@@ -1,0 +1,751 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Autonomous \"Business in a Box\" (BiaB) Venture Foundry",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          55.17582893371582,
+          54.39712142944336
+        ],
+        [
+          472.1924285888672,
+          54.39712142944336
+        ],
+        [
+          472.1924285888672,
+          71.946533203125
+        ],
+        [
+          55.17582893371582,
+          71.946533203125
+        ]
+      ]
+    },
+    {
+      "title": "Executive Architecture Review & Technical Specification",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          54.42584037780762,
+          80.85831642150879
+        ],
+        [
+          394.8332977294922,
+          80.85831642150879
+        ],
+        [
+          394.8332977294922,
+          95.2478084564209
+        ],
+        [
+          54.42584037780762,
+          95.2478084564209
+        ]
+      ]
+    },
+    {
+      "title": "1. Executive Summary",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          54.640520095825195,
+          180.46699905395508
+        ],
+        [
+          192.39488220214844,
+          180.46699905395508
+        ],
+        [
+          192.39488220214844,
+          194.66009521484375
+        ],
+        [
+          54.640520095825195,
+          194.66009521484375
+        ]
+      ]
+    },
+    {
+      "title": "THE 4-PILLAR FOUNDRY PIPELINE",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          219.10558319091797,
+          306.5719985961914
+        ],
+        [
+          375.24403381347656,
+          306.5719985961914
+        ],
+        [
+          375.24403381347656,
+          320.4847106933594
+        ],
+        [
+          219.10558319091797,
+          320.4847106933594
+        ]
+      ]
+    },
+    {
+      "title": "Key Differences from Standard AI Generators",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          54.421566009521484,
+          451.9939727783203
+        ],
+        [
+          290.89031982421875,
+          451.9939727783203
+        ],
+        [
+          290.89031982421875,
+          465.717529296875
+        ],
+        [
+          54.421566009521484,
+          465.717529296875
+        ]
+      ]
+    },
+    {
+      "title": "2. Phase 0: The Pre-Flight \"Grill-Me\" & RAG Discovery Agent",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          55.03728675842285,
+          598.8946380615234
+        ],
+        [
+          437.0983428955078,
+          598.8946380615234
+        ],
+        [
+          437.0983428955078,
+          614.0440521240234
+        ],
+        [
+          55.03728675842285,
+          614.0440521240234
+        ]
+      ]
+    },
+    {
+      "title": "sequenceDiagram",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          54.94437789916992,
+          649.3343811035156
+        ],
+        [
+          136.46182250976562,
+          649.3343811035156
+        ],
+        [
+          136.46182250976562,
+          662.2084808349609
+        ],
+        [
+          54.94437789916992,
+          662.2084808349609
+        ]
+      ]
+    },
+    {
+      "title": "The Discovery Protocol",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          55.65664100646973,
+          225.91376495361328
+        ],
+        [
+          176.82873916625977,
+          225.91376495361328
+        ],
+        [
+          176.82873916625977,
+          238.91754150390625
+        ],
+        [
+          55.65664100646973,
+          238.91754150390625
+        ]
+      ]
+    },
+    {
+      "title": "1. Interactive Interview (\"Grill the User\"):",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          68.43229866027832,
+          243.6210479736328
+        ],
+        [
+          286.2688522338867,
+          243.6210479736328
+        ],
+        [
+          286.2688522338867,
+          257.80169677734375
+        ],
+        [
+          68.43229866027832,
+          257.80169677734375
+        ]
+      ]
+    },
+    {
+      "title": "2. Live Market RAG & Intelligence:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          66.54392051696777,
+          328.1176986694336
+        ],
+        [
+          251.38494873046875,
+          328.1176986694336
+        ],
+        [
+          251.38494873046875,
+          341.009521484375
+        ],
+        [
+          66.54392051696777,
+          341.009521484375
+        ]
+      ]
+    },
+    {
+      "title": "3. The Grounded Thesis Brief:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          65.66916847229004,
+          375.9528350830078
+        ],
+        [
+          225.17090606689453,
+          375.9528350830078
+        ],
+        [
+          225.17090606689453,
+          388.770751953125
+        ],
+        [
+          65.66916847229004,
+          388.770751953125
+        ]
+      ]
+    },
+    {
+      "title": "3. The 6-Wave Autonomous Lifecycle",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          54.488210678100586,
+          444.3122863769531
+        ],
+        [
+          279.64837646484375,
+          444.3122863769531
+        ],
+        [
+          279.64837646484375,
+          458.9631042480469
+        ],
+        [
+          54.488210678100586,
+          458.9631042480469
+        ]
+      ]
+    },
+    {
+      "title": "4. Dual Administrative Surfaces",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          54.52902030944824,
+          113.09821701049805
+        ],
+        [
+          248.14462280273438,
+          113.09821701049805
+        ],
+        [
+          248.14462280273438,
+          127.67333984375
+        ],
+        [
+          54.52902030944824,
+          127.67333984375
+        ]
+      ]
+    },
+    {
+      "title": "Surface A: Factory Fleet Command Center (For Us / Platform Ops)",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          54.50324821472168,
+          158.18427658081055
+        ],
+        [
+          402.05126953125,
+          158.18427658081055
+        ],
+        [
+          402.05126953125,
+          172.1407470703125
+        ],
+        [
+          54.50324821472168,
+          172.1407470703125
+        ]
+      ]
+    },
+    {
+      "title": "Surface B: Venture Owner Back-Office Portal (For the Consumer / Entrepreneur)",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          54.4281005859375,
+          494.22157287597656
+        ],
+        [
+          470.2903289794922,
+          494.22157287597656
+        ],
+        [
+          470.2903289794922,
+          508.42266845703125
+        ],
+        [
+          54.4281005859375,
+          508.42266845703125
+        ]
+      ]
+    },
+    {
+      "title": "5. NerazimNet Dynamic Ingress Architecture",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          54.1076602935791,
+          605.0900115966797
+        ],
+        [
+          327.30040740966797,
+          605.0900115966797
+        ],
+        [
+          327.30040740966797,
+          620.3850555419922
+        ],
+        [
+          54.1076602935791,
+          620.3850555419922
+        ]
+      ]
+    },
+    {
+      "title": "Remote VPS (NerazimNet Server Setup)",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          57.599998474121094,
+          296.72408294677734
+        ],
+        [
+          518.5711669921875,
+          296.72408294677734
+        ],
+        [
+          518.5711669921875,
+          309.9447021484375
+        ],
+        [
+          57.599998474121094,
+          309.9447021484375
+        ]
+      ]
+    },
+    {
+      "title": "6. Long-Horizon Bayesian Engine & Decision Matrix",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          54.53921699523926,
+          580.4299621582031
+        ],
+        [
+          369.92601013183594,
+          580.4299621582031
+        ],
+        [
+          369.92601013183594,
+          595.0630340576172
+        ],
+        [
+          54.53921699523926,
+          595.0630340576172
+        ]
+      ]
+    },
+    {
+      "title": "graph TD",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          54.172977447509766,
+          630.6630249023438
+        ],
+        [
+          100.49287033081055,
+          630.6630249023438
+        ],
+        [
+          100.49287033081055,
+          643.2274627685547
+        ],
+        [
+          54.172977447509766,
+          643.2274627685547
+        ]
+      ]
+    },
+    {
+      "title": "Strategic Action Matrix",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          53.50456237792969,
+          106.38525009155273
+        ],
+        [
+          178.5604248046875,
+          106.38525009155273
+        ],
+        [
+          178.5604248046875,
+          119.4895248413086
+        ],
+        [
+          53.50456237792969,
+          119.4895248413086
+        ]
+      ]
+    },
+    {
+      "title": "7. Implementation Roadmap",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          54.638071060180664,
+          228.68946075439453
+        ],
+        [
+          228.66094207763672,
+          228.68946075439453
+        ],
+        [
+          228.66094207763672,
+          243.7103271484375
+        ],
+        [
+          54.638071060180664,
+          243.7103271484375
+        ]
+      ]
+    },
+    {
+      "title": "Conclusion & Review Recommendation",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          54.116289138793945,
+          508.69102478027344
+        ],
+        [
+          291.48866271972656,
+          508.69102478027344
+        ],
+        [
+          291.48866271972656,
+          524.6083068847656
+        ],
+        [
+          54.116289138793945,
+          524.6083068847656
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          135
+        ],
+        [
+          "Line",
+          40
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "SectionHeader",
+          7
+        ],
+        [
+          "ListItem",
+          4
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          198
+        ],
+        [
+          "Line",
+          51
+        ],
+        [
+          "ListItem",
+          10
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          82
+        ],
+        [
+          "Line",
+          24
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "PictureGroup",
+          1
+        ],
+        [
+          "ListItem",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          101
+        ],
+        [
+          "Line",
+          26
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "ListItem",
+          8
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          132
+        ],
+        [
+          "Line",
+          33
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/document"
+}
