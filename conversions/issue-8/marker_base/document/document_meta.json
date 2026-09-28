@@ -1,0 +1,881 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Haag's Theorem: Why the Simple Picture Doesn't Work",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          160.04743194580078,
+          111.12937545776367
+        ],
+        [
+          454.91693115234375,
+          111.12937545776367
+        ],
+        [
+          454.91693115234375,
+          127.7361831665039
+        ],
+        [
+          160.04743194580078,
+          127.7361831665039
+        ]
+      ]
+    },
+    {
+      "title": "Haag's Theorem: The Strange Problem at\nthe Heart of Quantum Field Theory",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          52.127105712890625,
+          383.2012023925781
+        ],
+        [
+          525.9326934814453,
+          383.2012023925781
+        ],
+        [
+          525.9326934814453,
+          445.19158935546875
+        ],
+        [
+          52.127105712890625,
+          445.19158935546875
+        ]
+      ]
+    },
+    {
+      "title": "What Is a Hilbert Space?",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.64881134033203,
+          217.34003448486328
+        ],
+        [
+          235.04853057861328,
+          217.34003448486328
+        ],
+        [
+          235.04853057861328,
+          238.33648681640625
+        ],
+        [
+          51.64881134033203,
+          238.33648681640625
+        ]
+      ]
+    },
+    {
+      "title": "What Does Unitary Mean?",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.29532051086426,
+          557.7190704345703
+        ],
+        [
+          246.66650390625,
+          557.7190704345703
+        ],
+        [
+          246.66650390625,
+          578.6036834716797
+        ],
+        [
+          51.29532051086426,
+          578.6036834716797
+        ]
+      ]
+    },
+    {
+      "title": "From Particles to Fields",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          51.30611228942871,
+          210.9477081298828
+        ],
+        [
+          229.11058044433594,
+          210.9477081298828
+        ],
+        [
+          229.11058044433594,
+          231.93646240234375
+        ],
+        [
+          51.30611228942871,
+          231.93646240234375
+        ]
+      ]
+    },
+    {
+      "title": "Start With a World Without Interactions",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          51.49139213562012,
+          588.7336120605469
+        ],
+        [
+          343.55918884277344,
+          588.7336120605469
+        ],
+        [
+          343.55918884277344,
+          610.3364715576172
+        ],
+        [
+          51.49139213562012,
+          610.3364715576172
+        ]
+      ]
+    },
+    {
+      "title": "The Interaction Picture",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          51.37277412414551,
+          392.52662658691406
+        ],
+        [
+          225.1069564819336,
+          392.52662658691406
+        ],
+        [
+          225.1069564819336,
+          413.80364990234375
+        ],
+        [
+          51.37277412414551,
+          413.80364990234375
+        ]
+      ]
+    },
+    {
+      "title": "Haag's Theorem",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          51.41224479675293,
+          194.65122985839844
+        ],
+        [
+          176.56871795654297,
+          194.65122985839844
+        ],
+        [
+          176.56871795654297,
+          215.93646240234375
+        ],
+        [
+          51.41224479675293,
+          215.93646240234375
+        ]
+      ]
+    },
+    {
+      "title": "What Does \"Unitarily Inequivalent\" Mean?",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          51.34672737121582,
+          541.3891754150391
+        ],
+        [
+          364.84739685058594,
+          541.3891754150391
+        ],
+        [
+          364.84739685058594,
+          562.6034393310547
+        ],
+        [
+          51.34672737121582,
+          562.6034393310547
+        ]
+      ]
+    },
+    {
+      "title": "Why Doesn't This Destroy Quantum Field Theory?",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          51.66788291931152,
+          482.6399688720703
+        ],
+        [
+          421.9892120361328,
+          482.6399688720703
+        ],
+        [
+          421.9892120361328,
+          503.40374755859375
+        ],
+        [
+          51.66788291931152,
+          503.40374755859375
+        ]
+      ]
+    },
+    {
+      "title": "Fock Space and the Meaning of a Particle",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          51.731088638305664,
+          421.2616424560547
+        ],
+        [
+          357.1351776123047,
+          421.2616424560547
+        ],
+        [
+          357.1351776123047,
+          442.60369873046875
+        ],
+        [
+          51.731088638305664,
+          442.60369873046875
+        ]
+      ]
+    },
+    {
+      "title": "The Vacuum Is Not Nothing",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          51.7686710357666,
+          261.94358825683594
+        ],
+        [
+          256.4307403564453,
+          261.94358825683594
+        ],
+        [
+          256.4307403564453,
+          283.13641357421875
+        ],
+        [
+          51.7686710357666,
+          283.13641357421875
+        ]
+      ]
+    },
+    {
+      "title": "What Is a Representation?",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          51.25515174865723,
+          602.2007446289062
+        ],
+        [
+          248.8279037475586,
+          602.2007446289062
+        ],
+        [
+          248.8279037475586,
+          623.4034881591797
+        ],
+        [
+          51.25515174865723,
+          623.4034881591797
+        ]
+      ]
+    },
+    {
+      "title": "Haag and Algebraic Quantum Field Theory",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          51.454776763916016,
+          415.4637451171875
+        ],
+        [
+          369.2833557128906,
+          415.4637451171875
+        ],
+        [
+          369.2833557128906,
+          436.20379638671875
+        ],
+        [
+          51.454776763916016,
+          436.20379638671875
+        ]
+      ]
+    },
+    {
+      "title": "Objects and Processes",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          51.45039367675781,
+          172.35761260986328
+        ],
+        [
+          224.06808471679688,
+          172.35761260986328
+        ],
+        [
+          224.06808471679688,
+          193.53631591796875
+        ],
+        [
+          51.45039367675781,
+          193.53631591796875
+        ]
+      ]
+    },
+    {
+      "title": "of reality.",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          51.737565994262695,
+          40.04907417297363
+        ],
+        [
+          118.09684753417969,
+          40.04907417297363
+        ],
+        [
+          118.09684753417969,
+          60.27032470703125
+        ],
+        [
+          51.737565994262695,
+          60.27032470703125
+        ]
+      ]
+    },
+    {
+      "title": "What Haag's Theorem Really Tells Us",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          51.81540870666504,
+          618.19189453125
+        ],
+        [
+          328.31346130371094,
+          618.19189453125
+        ],
+        [
+          328.31346130371094,
+          640.4703826904297
+        ],
+        [
+          51.81540870666504,
+          640.4703826904297
+        ]
+      ]
+    },
+    {
+      "title": "Reference:",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          52.25932502746582,
+          41.77026844024658
+        ],
+        [
+          125.82869338989258,
+          41.77026844024658
+        ],
+        [
+          125.82869338989258,
+          60.27081298828125
+        ],
+        [
+          52.25932502746582,
+          60.27081298828125
+        ]
+      ]
+    },
+    {
+      "title": "Written by Bill Giannakopoulos",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          51.71970176696777,
+          379.0292053222656
+        ],
+        [
+          310.2228698730469,
+          379.0292053222656
+        ],
+        [
+          310.2228698730469,
+          402.24200439453125
+        ],
+        [
+          51.71970176696777,
+          402.24200439453125
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          42
+        ],
+        [
+          "Line",
+          12
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "Picture",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          44
+        ],
+        [
+          "Line",
+          22
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          42
+        ],
+        [
+          "Line",
+          21
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          42
+        ],
+        [
+          "Line",
+          21
+        ],
+        [
+          "Text",
+          13
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          46
+        ],
+        [
+          "Line",
+          23
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          46
+        ],
+        [
+          "Line",
+          23
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          42
+        ],
+        [
+          "Line",
+          21
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          46
+        ],
+        [
+          "Line",
+          23
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          44
+        ],
+        [
+          "Line",
+          22
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          42
+        ],
+        [
+          "Line",
+          21
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          44
+        ],
+        [
+          "Line",
+          22
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          44
+        ],
+        [
+          "Line",
+          22
+        ],
+        [
+          "Text",
+          11
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          30
+        ],
+        [
+          "Line",
+          9
+        ],
+        [
+          "Text",
+          7
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Form",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "pdftext",
+      "block_counts": [],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "pdftext",
+      "block_counts": [],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "pdftext",
+      "block_counts": [],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/document"
+}
