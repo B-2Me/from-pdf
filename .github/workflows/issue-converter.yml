@@ -26,20 +26,37 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
+      - name: Cache HuggingFace Models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: huggingface-models-${{ runner.os }}
+
+      - name: Cache Llama.cpp
+        id: cache-llama
+        uses: actions/cache@v4
+        with:
+          path: ~/llama_bin
+          key: llama-b10809-ubuntu-x64
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y zip unzip poppler-utils
-          pip install . openai
           
-          wget "https://github.com/ggml-org/llama.cpp/releases/download/b10809/llama-b10809-bin-ubuntu-x64.tar.gz" -O llama.tar.gz
-          sudo mkdir -p /opt/llama_bin
-          sudo tar -xzf llama.tar.gz -C /opt/llama_bin --strip-components=1
-          sudo chmod +x /opt/llama_bin/llama-server
+          pip install uv
+          uv pip install --system . openai
           
-          echo "/opt/llama_bin" >> $GITHUB_PATH
-          echo "GGML_BACKEND_PATH=/opt/llama_bin" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=/opt/llama_bin:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          if [ "${{ steps.cache-llama.outputs.cache-hit }}" != "true" ]; then
+            wget "https://github.com/ggml-org/llama.cpp/releases/download/b10809/llama-b10809-bin-ubuntu-x64.tar.gz" -O llama.tar.gz
+            mkdir -p ~/llama_bin
+            tar -xzf llama.tar.gz -C ~/llama_bin --strip-components=1
+            chmod +x ~/llama_bin/llama-server
+          fi
+          
+          echo "$HOME/llama_bin" >> $GITHUB_PATH
+          echo "GGML_BACKEND_PATH=$HOME/llama_bin" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/llama_bin:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Extract PDF URL and Download
         run: |
@@ -114,7 +131,7 @@ jobs:
               api_key=os.environ.get("OPENROUTER_API_KEY"),
           )
 
-          model_to_use = os.environ.get("CUSTOM_MODEL") or "inclusionai/ling-3.0-flash-vl:free"
+          model_to_use = os.environ.get("CUSTOM_MODEL") or "qwen/qwen3.8-27b:free"
           file_suffix = os.environ.get("FILE_SUFFIX")
 
           def get_page_num(filename):
