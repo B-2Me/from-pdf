@@ -178,14 +178,20 @@ jobs:
                               }
                           ]
                       )
+                      
+                      # Prevent TypeError if API returns an empty response
+                      content = response.choices[0].message.content
+                      if content is None:
+                          raise ValueError("API returned an empty response (NoneType)")
+                          
                       with open(out_file, "a", encoding="utf-8") as f:
-                          f.write(response.choices[0].message.content + "\n\n---\n\n")
+                          f.write(content + "\n\n---\n\n")
                       break
                   except Exception as e:
                       print(f"     ❌ Attempt {attempt} failed: {e}", flush=True)
-                      time.sleep(5)
+                      time.sleep(15)
                       attempt += 1
-              time.sleep(2)
+              time.sleep(5)
 
           print(f"✅ Vision transcription completed.", flush=True)
           EOF
