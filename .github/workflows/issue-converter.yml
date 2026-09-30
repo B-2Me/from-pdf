@@ -220,18 +220,15 @@ jobs:
         if: env.ENGINE == 'marker-llm'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENAI_BASE_URL: "https://openrouter.ai/api/v1"
         run: |
           LLM_MODEL="${CUSTOM_MODEL:-google/gemma-4-31b-it:free}"
           echo "Running Marker with LLM: $LLM_MODEL"
           
           timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
             --mode fast $OCR_ARG --keep_pagefooter_in_output --keep_pageheader_in_output \
-            --use_llm --llm_service marker.services.openai.OpenAIService \
-            --openai_model "$LLM_MODEL" \
-            --openai_api_key "${{ secrets.OPENROUTER_API_KEY }}" \
-            --openai_base_url "https://openrouter.ai/api/v1" \
+            --use_llm --llm_service marker.services.openrouter.OpenRouterService \
+            --openrouter_model "$LLM_MODEL" \
+            --openrouter_api_key "${{ secrets.OPENROUTER_API_KEY }}" \
             $PAGE_ARG || echo "⚠️ Marker LLM timed out or failed."
           
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md ]; then
