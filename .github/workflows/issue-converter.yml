@@ -131,7 +131,7 @@ jobs:
               api_key=os.environ.get("OPENROUTER_API_KEY"),
           )
 
-          model_to_use = os.environ.get("CUSTOM_MODEL") or "qwen/qwen3.8-27b:free"
+          model_to_use = os.environ.get("CUSTOM_MODEL") or "google/gemma-4-31b-it:free"
           file_suffix = os.environ.get("FILE_SUFFIX")
 
           def get_page_num(filename):
@@ -189,9 +189,9 @@ jobs:
                       break
                   except Exception as e:
                       print(f"     ❌ Attempt {attempt} failed: {e}", flush=True)
-                      time.sleep(15)
+                      time.sleep(5 * attempt)
                       attempt += 1
-              time.sleep(5)
+              time.sleep(2)
 
           print(f"✅ Vision transcription completed.", flush=True)
           EOF
