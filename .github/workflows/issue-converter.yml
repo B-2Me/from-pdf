@@ -72,8 +72,8 @@ jobs:
             echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
             echo "-> Page Range: $PAGE_RANGE"
             
-            FIRST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f1)
-            LAST_PAGE=$(echo$PAGE_RANGE | cut -d'-' -f2)
+            FIRST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f1)
+            LAST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f2)
             echo "PDFTOPPM_ARGS=-f $FIRST_PAGE -l $LAST_PAGE" >> $GITHUB_ENV
           else
             echo "PAGE_ARG=" >> $GITHUB_ENV
