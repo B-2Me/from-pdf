@@ -119,7 +119,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           mkdir -p conversions/issue-${{ github.event.issue.number }}/vision
-          pdftoppm -png -r 150 $PDFTOPPM_ARGS document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
+          pdftoppm -png -r 150 ${{ env.PDFTOPPM_ARGS }} document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
           mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
           
           cat << 'EOF' > run_vision.py
@@ -179,7 +179,6 @@ jobs:
                           ]
                       )
                       
-                      # Prevent TypeError if API returns an empty response
                       content = response.choices[0].message.content
                       if content is None:
                           raise ValueError("API returned an empty response (NoneType)")
@@ -196,7 +195,7 @@ jobs:
           print(f"✅ Vision transcription completed.", flush=True)
           EOF
           
-          timeout ${TIMEOUT_MINUTES}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
+          timeout ${{ env.TIMEOUT_MINUTES }}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
 
       # ==========================================
       # ENGINE 2: MARKER CPU (DEFAULT FAST)
@@ -206,11 +205,11 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
-            --mode fast $OCR_ARG --keep_pagefooter_in_output --keep_pageheader_in_output$PAGE_ARG || echo "⚠️ Marker Base timed out or failed."
+          timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
+            --mode fast ${{ env.OCR_ARG }} --keep_pagefooter_in_output --keep_pageheader_in_output${{ env.PAGE_ARG }} || echo "⚠️ Marker Base timed out or failed."
             
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${FILE_SUFFIX}.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${{ env.FILE_SUFFIX }}.md
           fi
 
       # ==========================================
@@ -221,18 +220,19 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          LLM_MODEL="${CUSTOM_MODEL:-google/gemma-4-31b-it:free}"
+          LLM_MODEL="${{ env.CUSTOM_MODEL }}"
+          if [ -z "$LLM_MODEL" ]; then LLM_MODEL="google/gemma-4-31b-it:free"; fi
           echo "Running Marker with LLM: $LLM_MODEL"
           
-          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
-            --mode fast $OCR_ARG --keep_pagefooter_in_output --keep_pageheader_in_output \
+          timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
+            --mode fast ${{ env.OCR_ARG }} --keep_pagefooter_in_output --keep_pageheader_in_output \
             --use_llm --llm_service marker.services.openrouter.OpenRouterService \
             --openrouter_model "$LLM_MODEL" \
             --openrouter_api_key "${{ secrets.OPENROUTER_API_KEY }}" \
-            $PAGE_ARG || echo "⚠️ Marker LLM timed out or failed."
+            ${{ env.PAGE_ARG }} || echo "⚠️ Marker LLM timed out or failed."
           
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm_${FILE_SUFFIX}.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm_${{ env.FILE_SUFFIX }}.md
           fi
 
       # ==========================================
@@ -260,7 +260,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/ || true
-          git commit -m "Generated markdown using ${ENGINE} engine for${FILE_SUFFIX} [skip ci]" || echo "No final changes to commit"
+          git commit -m "Generated markdown using ${{ env.ENGINE }} engine for${{ env.FILE_SUFFIX }} [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main || true
           git push origin HEAD:main || true
 
