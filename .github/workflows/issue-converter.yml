@@ -102,9 +102,9 @@ jobs:
             echo "PDFTOPPM_ARGS=" >> $GITHUB_ENV
           fi
 
-          # 4. Timeout Override
+          # 4. Timeout Override (Increased default to 120m for CPU OCR)
           TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
-          if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="15"; fi
+          if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="120"; fi
           echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
           echo "-> Timeout: ${TIMEOUT_MINS}m"
 
@@ -210,7 +210,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
-            --mode fast ${{ env.OCR_ARG }} --keep_pagefooter_in_output --keep_pageheader_in_output ${{ env.PAGE_ARG }} || echo "⚠️ Marker Base timed out or failed."
+            --mode fast ${{ env.OCR_ARG }} --debug --keep_pagefooter_in_output --keep_pageheader_in_output ${{ env.PAGE_ARG }} || echo "⚠️ Marker Base timed out or failed."
             
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md ]; then
             cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${{ env.FILE_SUFFIX }}.md
@@ -229,7 +229,7 @@ jobs:
           echo "Running Marker with LLM: $LLM_MODEL"
           
           timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
-            --mode fast ${{ env.OCR_ARG }} --keep_pagefooter_in_output --keep_pageheader_in_output \
+            --mode fast ${{ env.OCR_ARG }} --debug --keep_pagefooter_in_output --keep_pageheader_in_output \
             --use_llm --llm_service marker.services.openrouter.OpenRouterService \
             --openrouter_model "$LLM_MODEL" \
             --openrouter_api_key "${{ secrets.OPENROUTER_API_KEY }}" \
