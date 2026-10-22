@@ -85,13 +85,17 @@ jobs:
           # 3. Page Range & File Suffix
           PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
-            echo "PAGE_ARG=--page_range $PAGE_RANGE" >> $GITHUB_ENV
-            echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
-            echo "-> Page Range: $PAGE_RANGE"
-            
             FIRST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f1)
             LAST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f2)
+            
+            # marker_single expects 0-indexed pages, whereas humans and pdftoppm use 1-indexed.
+            MARKER_FIRST=$((FIRST_PAGE - 1))
+            MARKER_LAST=$((LAST_PAGE - 1))
+            
+            echo "PAGE_ARG=--page_range $MARKER_FIRST-$MARKER_LAST" >> $GITHUB_ENV
+            echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
             echo "PDFTOPPM_ARGS=-f $FIRST_PAGE -l $LAST_PAGE" >> $GITHUB_ENV
+            echo "-> Page Range: $PAGE_RANGE (Translated to $MARKER_FIRST-$MARKER_LAST for Marker)"
           else
             echo "PAGE_ARG=" >> $GITHUB_ENV
             echo "FILE_SUFFIX=full_document" >> $GITHUB_ENV
