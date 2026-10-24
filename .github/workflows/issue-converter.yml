@@ -417,4 +417,3 @@ FORMATTING RULES:
               repo: context.repo.repo,
               body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n- **Footers Mode:** \`${process.env.FOOTER_MODE || 'remove'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
-            
