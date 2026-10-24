@@ -82,12 +82,18 @@ jobs:
             echo "-> OCR: Standard (Fast Native Layer)"
           fi
 
-          # 3. Footer Handling Mode (/footers=remove | /footers=simplified | /footers=keep)
+          # 3. Footer/Header Handling Mode (Default: remove)
+          # Accepts: /footers=keep or /headers=keep -> "keep"
+          # Accepts: /footers=keep-simplified or /headers=keep-simplified -> "keep-simplified"
+          # Default fallback: "remove"
           FOOTER_MODE="remove"
-          if echo "${{ github.event.issue.body }}" | grep -iq "/footers=keep"; then FOOTER_MODE="keep"; fi
-          if echo "${{ github.event.issue.body }}" | grep -iq "/footers=simplified"; then FOOTER_MODE="simplified"; fi
+          if echo "${{ github.event.issue.body }}" | grep -iEq "/(footers|headers)=(keep-simplified|simplified)"; then
+            FOOTER_MODE="keep-simplified"
+          elif echo "${{ github.event.issue.body }}" | grep -iEq "/(footers|headers)=keep"; then
+            FOOTER_MODE="keep"
+          fi
           echo "FOOTER_MODE=$FOOTER_MODE" >> $GITHUB_ENV
-          echo "-> Footers: $FOOTER_MODE"
+          echo "-> Footers/Headers Mode: $FOOTER_MODE"
 
           # 4. Page Range & File Suffix
           PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
@@ -235,5 +241,5 @@ jobs:
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n- **Footers Mode:** \`${process.env.FOOTER_MODE || 'remove'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n- **Footers/Headers Mode:** \`${process.env.FOOTER_MODE || 'remove'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
