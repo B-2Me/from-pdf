@@ -50,7 +50,8 @@ def normalize_for_comparison(line):
     s = clean_invisible(line)
     return re.sub(r'[\W\d_]+', '', s.lower())
 
-def prune_simplified_page_breaks(text):
+def prune_interleaved_page_breaks(text):
+    # Matches alternating separator and number blocks (e.g. --- \n 1 \n --- or 1 \n --- \n 2)
     p1 = r'(?m)^(?:\s*-\s*){3,}\s*\n+\s*\d+\s*\n+(?:\s*-\s*){3,}\s*$'
     text = re.sub(p1, '', text)
     p2 = r'(?m)^\s*\d+\s*\n+(?:\s*-\s*){3,}\s*\n+\s*\d+\s*$'
@@ -123,6 +124,7 @@ cleaned_pages = []
 if footer_mode == "keep":
     cleaned_pages = raw_pages
 else:
+    # Both "remove" and "keep-simplified" purge repeating running headers/footers in margin zones
     margin_signatures = Counter()
     for content in raw_pages:
         lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
@@ -140,7 +142,8 @@ else:
     recurrent_margin_patterns = {sig for sig, count in margin_signatures.items() if count >= threshold}
 
     for page_idx, content in enumerate(raw_pages):
-        normalized_content = prune_simplified_page_breaks(content)
+        # 1. Strip interleaved header/footer and page break sequences
+        normalized_content = prune_interleaved_page_breaks(content)
         lines = normalized_content.splitlines()
         non_empty_indices = [i for i, line in enumerate(lines) if line.strip()]
         
@@ -152,9 +155,11 @@ else:
         
         filtered_lines = []
         for idx, line in enumerate(lines):
+            # Strip bare numbers and leftover standalone rules
             if is_page_number_or_separator(line):
                 continue
                 
+            # Strip repeating text in running header (top) and running footer (bottom)
             if idx <= header_bound_idx or idx >= footer_bound_idx:
                 norm = normalize_for_comparison(line)
                 if norm in recurrent_margin_patterns:
@@ -164,7 +169,8 @@ else:
 
         page_body = "\n".join(filtered_lines).strip()
         
-        if footer_mode == "simplified":
+        # 2. Append standardized simplified footer if requested
+        if footer_mode == "keep-simplified":
             current_num = start_page_num + page_idx
             page_body = f"{page_body}\n\n---\n{current_num}"
             
@@ -175,4 +181,4 @@ with open(out_file, "w", encoding="utf-8") as f:
     full_doc = re.sub(r'\n\n\n+', '\n\n', full_doc)
     f.write(full_doc)
 
-print(f"✅ Transcription complete (footer mode: {footer_mode}). Written to {out_file}", flush=True)
+print(f"✅ Processing complete. Header/Footer mode: '{footer_mode}'. Saved to: {out_file}", flush=True)
