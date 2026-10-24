@@ -82,7 +82,14 @@ jobs:
             echo "-> OCR: Standard (Fast Native Layer)"
           fi
 
-          # 3. Page Range & File Suffix
+          # 3. Footer Handling Mode (/footers=remove | /footers=simplified | /footers=keep)
+          FOOTER_MODE="remove"
+          if echo "${{ github.event.issue.body }}" | grep -iq "/footers=keep"; then FOOTER_MODE="keep"; fi
+          if echo "${{ github.event.issue.body }}" | grep -iq "/footers=simplified"; then FOOTER_MODE="simplified"; fi
+          echo "FOOTER_MODE=$FOOTER_MODE" >> $GITHUB_ENV
+          echo "-> Footers: $FOOTER_MODE"
+
+          # 4. Page Range & File Suffix
           PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
             FIRST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f1)
@@ -94,20 +101,22 @@ jobs:
             echo "PAGE_ARG=--page_range $MARKER_FIRST-$MARKER_LAST" >> $GITHUB_ENV
             echo "FILE_SUFFIX=pages_$PAGE_RANGE" >> $GITHUB_ENV
             echo "PDFTOPPM_ARGS=-f $FIRST_PAGE -l $LAST_PAGE" >> $GITHUB_ENV
+            echo "START_PAGE_NUM=$FIRST_PAGE" >> $GITHUB_ENV
             echo "-> Page Range: $PAGE_RANGE (Translated to $MARKER_FIRST-$MARKER_LAST for Marker)"
           else
             echo "PAGE_ARG=" >> $GITHUB_ENV
             echo "FILE_SUFFIX=full_document" >> $GITHUB_ENV
             echo "PDFTOPPM_ARGS=" >> $GITHUB_ENV
+            echo "START_PAGE_NUM=1" >> $GITHUB_ENV
           fi
 
-          # 4. Timeout Override
+          # 5. Timeout Override
           TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
           if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="120"; fi
           echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
           echo "-> Timeout: ${TIMEOUT_MINS}m"
 
-          # 5. Model Override
+          # 6. Model Override
           CUSTOM_MODEL=$(echo "${{ github.event.issue.body }}" | grep -oP '/model(?:=|\s+)\K[^\s]+' | head -n 1)
           echo "CUSTOM_MODEL=$CUSTOM_MODEL" >> $GITHUB_ENV
           if [ -n "$CUSTOM_MODEL" ]; then echo "-> Model Override: $CUSTOM_MODEL"; fi
@@ -126,7 +135,12 @@ jobs:
           mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
           
           cat << 'EOF' > run_vision.py
-          import base64, os, sys, glob, re, time
+          import base64
+          import os
+          import sys
+          import glob
+          import re
+          import time
           from collections import Counter
           from openai import OpenAI
 
@@ -137,32 +151,56 @@ jobs:
 
           model_to_use = os.environ.get("CUSTOM_MODEL") or "google/gemma-4-31b-it:free"
           file_suffix = os.environ.get("FILE_SUFFIX")
+          footer_mode = os.environ.get("FOOTER_MODE") or "remove"
+          start_page_num = int(os.environ.get("START_PAGE_NUM") or 1)
 
           def get_page_num(filename):
               m = re.search(r'page.*?(\d+)\.png$', filename)
               return int(m.group(1)) if m else 0
 
-          def is_page_number_or_separator(line):
-              s = line.strip()
+          def clean_invisible(s):
+              return re.sub(r'[\u200b\u200c\u200d\uFEFF]', '', s)
+
+          def is_horizontal_rule(line):
+              s = clean_invisible(line).strip()
+              return bool(re.match(r'^(?:(?:\s*-\s*){3,}|(?:\s*\*\s*){3,}|(?:\s*_\s*){3,})$', s))
+
+          def is_bare_page_number(line):
+              s = clean_invisible(line).strip()
               if not s:
-                  return True
-              # Standard markdown horizontal rule
-              if re.match(r'^(?:---|\*\*\*|___)$', s):
-                  return True
-              # Raw HTML centering tags containing digits
+                  return False
               if re.match(r'^<center>\s*\d+\s*</center>$', s, re.IGNORECASE):
                   return True
-              # Standalone digits or patterns like: "Page 2", "12 / 45", "12 of 45", "- 4 -"
               if re.match(r'^(?:page\s*)?-?\s*\d+\s*(?:/|of|-)?\s*\d*\s*-?$', s, re.IGNORECASE):
                   return True
-              # Standalone roman numerals
               if re.match(r'^(?:[ivxlcdm]+)$', s, re.IGNORECASE):
                   return True
               return False
 
+          def is_page_number_or_separator(line):
+              s = clean_invisible(line).strip()
+              if not s:
+                  return True
+              return is_horizontal_rule(line) or is_bare_page_number(line)
+
           def normalize_for_comparison(line):
-              # Strip numbers, punctuation, spaces to identify identical header/footer banners regardless of page numbers
-              return re.sub(r'[\W\d_]+', '', line.lower())
+              s = clean_invisible(line)
+              return re.sub(r'[\W\d_]+', '', s.lower())
+
+          def prune_simplified_page_breaks(text):
+              # Strip sandwiches: Rule -> Number -> Rule
+              p1 = r'(?m)^(?:\s*-\s*){3,}\s*\n+\s*\d+\s*\n+(?:\s*-\s*){3,}\s*$'
+              text = re.sub(p1, '', text)
+              # Strip sandwiches: Number -> Rule -> Number
+              p2 = r'(?m)^\s*\d+\s*\n+(?:\s*-\s*){3,}\s*\n+\s*\d+\s*$'
+              text = re.sub(p2, '', text)
+              # Strip isolated Rule -> Number at block edges
+              p3 = r'(?m)^(?:\s*-\s*){3,}\s*\n+\s*\d+\s*$'
+              text = re.sub(p3, '', text)
+              # Strip isolated Number -> Rule at block edges
+              p4 = r'(?m)^\s*\d+\s*\n+(?:\s*-\s*){3,}\s*$'
+              text = re.sub(p4, '', text)
+              return text
 
           image_files = sorted(glob.glob(f"{sys.argv[1]}/vision/page-*.png"), key=get_page_num)
           out_file = f"{sys.argv[1]}/document_vision_{file_suffix}.md"
@@ -221,61 +259,66 @@ FORMATTING RULES:
               raw_pages.append(page_content)
               time.sleep(2)
 
-          # ============================================================
-          # DYNAMIC MARGIN-ONLY DEDUPLICATION (No hardcoding)
-          # ============================================================
-          # 1. Collect lines appearing exclusively in the header zone (top 3 lines) or footer zone (bottom 3 lines)
-          margin_signatures = Counter()
-          for content in raw_pages:
-              lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
-              top_candidates = lines[:3]
-              bottom_candidates = lines[-3:] if len(lines) > 3 else []
-              
-              seen_in_page = set()
-              for candidate in top_candidates + bottom_candidates:
-                  norm = normalize_for_comparison(candidate)
-                  # Must be long enough to represent a header/banner and not a simple word/heading
-                  if len(norm) >= 12:
-                      seen_in_page.add(norm)
-              margin_signatures.update(seen_in_page)
-
-          # Any margin line repeating across >= 2 pages (or >= 35% of pages) is classified as a running header/footer
-          threshold = max(2, int(len(raw_pages) * 0.35))
-          recurrent_margin_patterns = {sig for sig, count in margin_signatures.items() if count >= threshold}
-
           cleaned_pages = []
-          for content in raw_pages:
-              lines = content.splitlines()
-              non_empty_indices = [i for i, line in enumerate(lines) if line.strip()]
-              
-              if not non_empty_indices:
-                  continue
+
+          if footer_mode == "keep":
+              cleaned_pages = raw_pages
+          else:
+              # Both 'remove' and 'simplified' execute complex detection + simplified footer detection
+              margin_signatures = Counter()
+              for content in raw_pages:
+                  lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
+                  top_candidates = lines[:3]
+                  bottom_candidates = lines[-3:] if len(lines) > 3 else []
                   
-              header_bound_idx = non_empty_indices[min(2, len(non_empty_indices) - 1)]
-              footer_bound_idx = non_empty_indices[max(0, len(non_empty_indices) - 3)]
-              
-              filtered_lines = []
-              for idx, line in enumerate(lines):
-                  # Strip standalone page numbers and separators anywhere
-                  if is_page_number_or_separator(line):
+                  seen_in_page = set()
+                  for candidate in top_candidates + bottom_candidates:
+                      norm = normalize_for_comparison(candidate)
+                      if len(norm) >= 12:
+                          seen_in_page.add(norm)
+                  margin_signatures.update(seen_in_page)
+
+              threshold = max(2, int(len(raw_pages) * 0.35))
+              recurrent_margin_patterns = {sig for sig, count in margin_signatures.items() if count >= threshold}
+
+              for page_idx, content in enumerate(raw_pages):
+                  # Pre-strip multi-line sandwich page breaks
+                  normalized_content = prune_simplified_page_breaks(content)
+                  lines = normalized_content.splitlines()
+                  non_empty_indices = [i for i, line in enumerate(lines) if line.strip()]
+                  
+                  if not non_empty_indices:
                       continue
                       
-                  # If inside top or bottom margin bounds, check if it matches a recurring margin signature
-                  if idx <= header_bound_idx or idx >= footer_bound_idx:
-                      norm = normalize_for_comparison(line)
-                      if norm in recurrent_margin_patterns:
+                  header_bound_idx = non_empty_indices[min(2, len(non_empty_indices) - 1)]
+                  footer_bound_idx = non_empty_indices[max(0, len(non_empty_indices) - 3)]
+                  
+                  filtered_lines = []
+                  for idx, line in enumerate(lines):
+                      if is_page_number_or_separator(line):
                           continue
                           
-                  filtered_lines.append(line)
+                      if idx <= header_bound_idx or idx >= footer_bound_idx:
+                          norm = normalize_for_comparison(line)
+                          if norm in recurrent_margin_patterns:
+                              continue
+                              
+                      filtered_lines.append(line)
+
+                  page_body = "\n".join(filtered_lines).strip()
                   
-              cleaned_pages.append("\n".join(filtered_lines))
+                  if footer_mode == "simplified":
+                      current_num = start_page_num + page_idx
+                      page_body = f"{page_body}\n\n---\n{current_num}"
+                      
+                  cleaned_pages.append(page_body)
 
           with open(out_file, "w", encoding="utf-8") as f:
               full_doc = "\n\n".join(p.strip() for p in cleaned_pages if p.strip())
-              full_doc = re.sub(r'\n{3,}', '\n\n', full_doc)
+              full_doc = re.sub(r'\n\n\n+', '\n\n', full_doc)
               f.write(full_doc)
 
-          print(f"✅ Dynamic header/footer cleanup complete. Output written to {out_file}", flush=True)
+          print(f"✅ Transcription complete (footer mode: {footer_mode}). Written to {out_file}", flush=True)
           EOF
           
           timeout ${{ env.TIMEOUT_MINUTES }}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
@@ -381,6 +424,6 @@ FORMATTING RULES:
               issue_number: issueNum,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n\n### 🔬 Output Files (Chunks Safely Accumulated):\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
+              body: `✅ **Conversion Complete!**\n\n- **Engine Used:** \`${engine}\`\n- **Model:** \`${process.env.CUSTOM_MODEL || 'Default'}\`\n- **OCR Mode:** \`${process.env.OCR_ARG ? 'Forced (Neural)' : 'Standard (Fast)'}\`\n- **Footers Mode:** \`${process.env.FOOTER_MODE || 'remove'}\`\n\n### 🔬 Output Files:\n${fileLinks}\n\n📚 **Obsidian Vault:** [Download Zip](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${dir}/obsidian_ready.zip)`
             });
             
