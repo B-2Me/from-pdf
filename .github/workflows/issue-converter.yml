@@ -88,7 +88,6 @@ jobs:
             FIRST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f1)
             LAST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f2)
             
-            # marker_single expects 0-indexed pages, whereas humans and pdftoppm use 1-indexed.
             MARKER_FIRST=$((FIRST_PAGE - 1))
             MARKER_LAST=$((LAST_PAGE - 1))
             
@@ -102,7 +101,7 @@ jobs:
             echo "PDFTOPPM_ARGS=" >> $GITHUB_ENV
           fi
 
-          # 4. Timeout Override (Increased default to 120m for CPU OCR)
+          # 4. Timeout Override
           TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
           if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="120"; fi
           echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
@@ -128,6 +127,7 @@ jobs:
           
           cat << 'EOF' > run_vision.py
           import base64, os, sys, glob, re, time
+          from collections import Counter
           from openai import OpenAI
 
           client = OpenAI(
@@ -142,32 +142,57 @@ jobs:
               m = re.search(r'page.*?(\d+)\.png$', filename)
               return int(m.group(1)) if m else 0
 
+          def is_page_number_or_separator(line):
+              s = line.strip()
+              if not s:
+                  return True
+              # Standard markdown horizontal rule
+              if re.match(r'^(?:---|\*\*\*|___)$', s):
+                  return True
+              # Raw HTML centering tags containing digits
+              if re.match(r'^<center>\s*\d+\s*</center>$', s, re.IGNORECASE):
+                  return True
+              # Standalone digits or patterns like: "Page 2", "12 / 45", "12 of 45", "- 4 -"
+              if re.match(r'^(?:page\s*)?-?\s*\d+\s*(?:/|of|-)?\s*\d*\s*-?$', s, re.IGNORECASE):
+                  return True
+              # Standalone roman numerals
+              if re.match(r'^(?:[ivxlcdm]+)$', s, re.IGNORECASE):
+                  return True
+              return False
+
+          def normalize_for_comparison(line):
+              # Strip numbers, punctuation, spaces to identify identical header/footer banners regardless of page numbers
+              return re.sub(r'[\W\d_]+', '', line.lower())
+
           image_files = sorted(glob.glob(f"{sys.argv[1]}/vision/page-*.png"), key=get_page_num)
           out_file = f"{sys.argv[1]}/document_vision_{file_suffix}.md"
 
-          with open(out_file, "w", encoding="utf-8") as f:
-              f.write("")
-
           print(f"-> Found {len(image_files)} pages. Processing with {model_to_use}...", flush=True)
+
+          raw_pages = []
+          prompt = """Transcribe this document page into clean Markdown. 
+
+CRITICAL MATH RULES:
+1. ALWAYS format mathematical equations, symbols, and standalone variables using proper LaTeX enclosed in `$` for inline math and `$$` for block math.
+2. NEVER use Unicode math characters (e.g., avoid 𝓕, ℒ, Σ). Use their LaTeX equivalents instead (e.g., $\mathcal{F}$, $\mathcal{L}$, $\Sigma$).
+3. DO NOT escape underscores. Write `_` instead of `\_` both inside and outside of math blocks.
+
+EXCLUSION RULES:
+- DO NOT include repetitive running headers or running footers from the margins.
+- DO NOT include page numbers.
+
+FORMATTING RULES:
+- Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
+- Do NOT use HTML tags (no <ul>, <li>, <p>). 
+- Ensure main headers, body text, equations, and footnotes are fully captured."""
 
           for img_path in image_files:
               print(f"   Transcribing {os.path.basename(img_path)}...", flush=True)
               with open(img_path, "rb") as f:
                   b64_image = base64.b64encode(f.read()).decode("utf-8")
-              
-              prompt = """Transcribe this document page into clean Markdown. 
-
-              CRITICAL MATH RULES:
-              1. ALWAYS format mathematical equations, symbols, and standalone variables using proper LaTeX enclosed in `$` for inline math and `$$` for block math.
-              2. NEVER use Unicode math characters (e.g., avoid 𝓕, ℒ, Σ). Use their LaTeX equivalents instead (e.g., $\mathcal{F}$, $\mathcal{L}$, $\Sigma$).
-              3. DO NOT escape underscores. Write `_` instead of `\_` both inside and outside of math blocks.
-
-              FORMATTING RULES:
-              - Reconstruct schedules and tables using standard |---| Markdown tables with <br> for inner line breaks. 
-              - Do NOT use HTML tags (no <ul>, <li>, <p>). 
-              - Ensure every header, bullet point, footnote, and footer link at the bottom is fully captured."""
 
               attempt = 1
+              page_content = ""
               while attempt <= 3:
                   try:
                       response = client.chat.completions.create(
@@ -186,17 +211,71 @@ jobs:
                       content = response.choices[0].message.content
                       if content is None:
                           raise ValueError("API returned an empty response (NoneType)")
-                          
-                      with open(out_file, "a", encoding="utf-8") as f:
-                          f.write(content + "\n\n---\n\n")
+                      page_content = content
                       break
                   except Exception as e:
                       print(f"     ❌ Attempt {attempt} failed: {e}", flush=True)
                       time.sleep(5 * attempt)
                       attempt += 1
+
+              raw_pages.append(page_content)
               time.sleep(2)
 
-          print(f"✅ Vision transcription completed.", flush=True)
+          # ============================================================
+          # DYNAMIC MARGIN-ONLY DEDUPLICATION (No hardcoding)
+          # ============================================================
+          # 1. Collect lines appearing exclusively in the header zone (top 3 lines) or footer zone (bottom 3 lines)
+          margin_signatures = Counter()
+          for content in raw_pages:
+              lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
+              top_candidates = lines[:3]
+              bottom_candidates = lines[-3:] if len(lines) > 3 else []
+              
+              seen_in_page = set()
+              for candidate in top_candidates + bottom_candidates:
+                  norm = normalize_for_comparison(candidate)
+                  # Must be long enough to represent a header/banner and not a simple word/heading
+                  if len(norm) >= 12:
+                      seen_in_page.add(norm)
+              margin_signatures.update(seen_in_page)
+
+          # Any margin line repeating across >= 2 pages (or >= 35% of pages) is classified as a running header/footer
+          threshold = max(2, int(len(raw_pages) * 0.35))
+          recurrent_margin_patterns = {sig for sig, count in margin_signatures.items() if count >= threshold}
+
+          cleaned_pages = []
+          for content in raw_pages:
+              lines = content.splitlines()
+              non_empty_indices = [i for i, line in enumerate(lines) if line.strip()]
+              
+              if not non_empty_indices:
+                  continue
+                  
+              header_bound_idx = non_empty_indices[min(2, len(non_empty_indices) - 1)]
+              footer_bound_idx = non_empty_indices[max(0, len(non_empty_indices) - 3)]
+              
+              filtered_lines = []
+              for idx, line in enumerate(lines):
+                  # Strip standalone page numbers and separators anywhere
+                  if is_page_number_or_separator(line):
+                      continue
+                      
+                  # If inside top or bottom margin bounds, check if it matches a recurring margin signature
+                  if idx <= header_bound_idx or idx >= footer_bound_idx:
+                      norm = normalize_for_comparison(line)
+                      if norm in recurrent_margin_patterns:
+                          continue
+                          
+                  filtered_lines.append(line)
+                  
+              cleaned_pages.append("\n".join(filtered_lines))
+
+          with open(out_file, "w", encoding="utf-8") as f:
+              full_doc = "\n\n".join(p.strip() for p in cleaned_pages if p.strip())
+              full_doc = re.sub(r'\n{3,}', '\n\n', full_doc)
+              f.write(full_doc)
+
+          print(f"✅ Dynamic header/footer cleanup complete. Output written to {out_file}", flush=True)
           EOF
           
           timeout ${{ env.TIMEOUT_MINUTES }}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
@@ -247,7 +326,7 @@ jobs:
         run: |
           cd conversions/issue-${{ github.event.issue.number }} || exit 0
           
-          # Aggressive Obsidian Math & Markdown Cleanup
+          # Aggressive Obsidian Math & Markdown Cleanup across generated files
           find . -type f -name "*.md" -exec sed -i -e 's/\\(/$/g' -e 's/\\)/$/g' -e 's/\\\[/$$/g' -e 's/\\\]/$$/g' -e 's/\\_/_/g' -e 's/\\\*/*/g' {} + || true
           
           mkdir -p obsidian_ready
