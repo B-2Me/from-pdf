@@ -131,7 +131,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           mkdir -p conversions/issue-${{ github.event.issue.number }}/vision
-          pdftoppm -png -r 150 ${{ env.PDFTOPPM_ARGS }} document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
+          pdftoppm -png -r 150 $PDFTOPPM_ARGS document.pdf conversions/issue-${{ github.event.issue.number }}/vision/page || echo "⚠️ pdftoppm image extraction completed with warnings."
           mv page-*.png conversions/issue-${{ github.event.issue.number }}/vision/ 2>/dev/null || true
           
           cat << 'EOF' > run_vision.py
@@ -188,16 +188,12 @@ jobs:
               return re.sub(r'[\W\d_]+', '', s.lower())
 
           def prune_simplified_page_breaks(text):
-              # Strip sandwiches: Rule -> Number -> Rule
               p1 = r'(?m)^(?:\s*-\s*){3,}\s*\n+\s*\d+\s*\n+(?:\s*-\s*){3,}\s*$'
               text = re.sub(p1, '', text)
-              # Strip sandwiches: Number -> Rule -> Number
               p2 = r'(?m)^\s*\d+\s*\n+(?:\s*-\s*){3,}\s*\n+\s*\d+\s*$'
               text = re.sub(p2, '', text)
-              # Strip isolated Rule -> Number at block edges
               p3 = r'(?m)^(?:\s*-\s*){3,}\s*\n+\s*\d+\s*$'
               text = re.sub(p3, '', text)
-              # Strip isolated Number -> Rule at block edges
               p4 = r'(?m)^\s*\d+\s*\n+(?:\s*-\s*){3,}\s*$'
               text = re.sub(p4, '', text)
               return text
@@ -245,7 +241,6 @@ FORMATTING RULES:
                               }
                           ]
                       )
-                      
                       content = response.choices[0].message.content
                       if content is None:
                           raise ValueError("API returned an empty response (NoneType)")
@@ -264,7 +259,6 @@ FORMATTING RULES:
           if footer_mode == "keep":
               cleaned_pages = raw_pages
           else:
-              # Both 'remove' and 'simplified' execute complex detection + simplified footer detection
               margin_signatures = Counter()
               for content in raw_pages:
                   lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
@@ -282,7 +276,6 @@ FORMATTING RULES:
               recurrent_margin_patterns = {sig for sig, count in margin_signatures.items() if count >= threshold}
 
               for page_idx, content in enumerate(raw_pages):
-                  # Pre-strip multi-line sandwich page breaks
                   normalized_content = prune_simplified_page_breaks(content)
                   lines = normalized_content.splitlines()
                   non_empty_indices = [i for i, line in enumerate(lines) if line.strip()]
@@ -321,7 +314,7 @@ FORMATTING RULES:
           print(f"✅ Transcription complete (footer mode: {footer_mode}). Written to {out_file}", flush=True)
           EOF
           
-          timeout ${{ env.TIMEOUT_MINUTES }}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
+          timeout ${TIMEOUT_MINUTES}m python run_vision.py conversions/issue-${{ github.event.issue.number }} || echo "⚠️ Vision script timed out, partial file saved."
 
       # ==========================================
       # ENGINE 2: MARKER CPU (DEFAULT FAST)
@@ -331,11 +324,11 @@ FORMATTING RULES:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
-            --mode fast ${{ env.OCR_ARG }} --debug --keep_pagefooter_in_output --keep_pageheader_in_output ${{ env.PAGE_ARG }} || echo "⚠️ Marker Base timed out or failed."
+          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_base \
+            --mode fast $OCR_ARG --debug --keep_pagefooter_in_output --keep_pageheader_in_output $PAGE_ARG || echo "⚠️ Marker Base timed out or failed."
             
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${{ env.FILE_SUFFIX }}.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_base/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_${FILE_SUFFIX}.md
           fi
 
       # ==========================================
@@ -346,19 +339,18 @@ FORMATTING RULES:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          LLM_MODEL="${{ env.CUSTOM_MODEL }}"
-          if [ -z "$LLM_MODEL" ]; then LLM_MODEL="google/gemma-4-31b-it:free"; fi
+          LLM_MODEL="${CUSTOM_MODEL:-google/gemma-4-31b-it:free}"
           echo "Running Marker with LLM: $LLM_MODEL"
           
-          timeout ${{ env.TIMEOUT_MINUTES }}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
-            --mode fast ${{ env.OCR_ARG }} --debug --keep_pagefooter_in_output --keep_pageheader_in_output \
+          timeout ${TIMEOUT_MINUTES}m marker_single document.pdf --output_dir conversions/issue-${{ github.event.issue.number }}/marker_llm \
+            --mode fast $OCR_ARG --debug --keep_pagefooter_in_output --keep_pageheader_in_output \
             --use_llm --llm_service marker.services.openrouter.OpenRouterService \
             --openrouter_model "$LLM_MODEL" \
             --openrouter_api_key "${{ secrets.OPENROUTER_API_KEY }}" \
-            ${{ env.PAGE_ARG }} || echo "⚠️ Marker LLM timed out or failed."
+            $PAGE_ARG || echo "⚠️ Marker LLM timed out or failed."
           
           if [ -f conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md ]; then
-            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm_${{ env.FILE_SUFFIX }}.md
+            cp conversions/issue-${{ github.event.issue.number }}/marker_llm/document/document.md conversions/issue-${{ github.event.issue.number }}/document_marker_llm_${FILE_SUFFIX}.md
           fi
 
       # ==========================================
@@ -369,7 +361,6 @@ FORMATTING RULES:
         run: |
           cd conversions/issue-${{ github.event.issue.number }} || exit 0
           
-          # Aggressive Obsidian Math & Markdown Cleanup across generated files
           find . -type f -name "*.md" -exec sed -i -e 's/\\(/$/g' -e 's/\\)/$/g' -e 's/\\\[/$$/g' -e 's/\\\]/$$/g' -e 's/\\_/_/g' -e 's/\\\*/*/g' {} + || true
           
           mkdir -p obsidian_ready
@@ -386,7 +377,7 @@ FORMATTING RULES:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add conversions/issue-${{ github.event.issue.number }}/ || true
-          git commit -m "Generated markdown using ${{ env.ENGINE }} engine for ${{ env.FILE_SUFFIX }} [skip ci]" || echo "No final changes to commit"
+          git commit -m "Generated markdown using ${ENGINE} engine for ${FILE_SUFFIX} [skip ci]" || echo "No final changes to commit"
           git pull --rebase origin main || true
           git push origin HEAD:main || true
 
