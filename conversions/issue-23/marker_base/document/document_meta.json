@@ -1,0 +1,621 @@
+{
+  "table_of_contents": [
+    {
+      "title": "On the three-slit experiment and quantum",
+      "heading_level": 2,
+      "page_id": 0,
+      "polygon": [
+        [
+          38.775000000000006,
+          137.55
+        ],
+        [
+          334.38750000000005,
+          137.55
+        ],
+        [
+          334.38750000000005,
+          152.025
+        ],
+        [
+          38.775000000000006,
+          152.025
+        ]
+      ]
+    },
+    {
+      "title": "mechanics",
+      "heading_level": 2,
+      "page_id": 0,
+      "polygon": [
+        [
+          39.26250000000001,
+          156.7125
+        ],
+        [
+          115.16250000000002,
+          156.7125
+        ],
+        [
+          115.16250000000002,
+          168.03750000000002
+        ],
+        [
+          39.26250000000001,
+          168.03750000000002
+        ]
+      ]
+    },
+    {
+      "title": "You may also like",
+      "heading_level": 2,
+      "page_id": 0,
+      "polygon": [
+        [
+          404.2875,
+          114.67500000000003
+        ],
+        [
+          498.7875,
+          114.67500000000003
+        ],
+        [
+          498.7875,
+          125.51250000000002
+        ],
+        [
+          404.2875,
+          125.51250000000002
+        ]
+      ]
+    },
+    {
+      "title": "Journal of Physics Communications",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          117.96830358488597,
+          60.53290704639264
+        ],
+        [
+          344.81887336842544,
+          60.53290704639264
+        ],
+        [
+          344.81887336842544,
+          75.49736176232241
+        ],
+        [
+          117.96830358488597,
+          75.49736176232241
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          40.812077019978055,
+          121.06581409278527
+        ],
+        [
+          94.23947867538631,
+          121.06581409278527
+        ],
+        [
+          94.23947867538631,
+          134.38005325106866
+        ],
+        [
+          40.812077019978055,
+          134.38005325106866
+        ]
+      ]
+    },
+    {
+      "title": "PAPER",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          115.7531126518789,
+          113.8273685785636
+        ],
+        [
+          147.7419715488626,
+          113.8273685785636
+        ],
+        [
+          147.7419715488626,
+          121.62838757834653
+        ],
+        [
+          115.7531126518789,
+          121.62838757834653
+        ]
+      ]
+    },
+    {
+      "title": "On the three-slit experiment and quantum mechanics",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          117.96830358488597,
+          136.25529820293954
+        ],
+        [
+          458.46943191439925,
+          136.25529820293954
+        ],
+        [
+          458.46943191439925,
+          151.29476271694415
+        ],
+        [
+          117.96830358488597,
+          151.29476271694415
+        ]
+      ]
+    },
+    {
+      "title": "Bo-Sture K Skagerstam",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          118.86939820170242,
+          167.72190849533322
+        ],
+        [
+          220.43027063872233,
+          167.72190849533322
+        ],
+        [
+          220.43027063872233,
+          176.87310386046323
+        ],
+        [
+          118.86939820170242,
+          176.87310386046323
+        ]
+      ]
+    },
+    {
+      "title": "Abstract",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          119.09467185590653,
+          247.3073042527342
+        ],
+        [
+          157.57892111577544,
+          247.3073042527342
+        ],
+        [
+          157.57892111577544,
+          254.84578895925523
+        ],
+        [
+          119.09467185590653,
+          254.84578895925523
+        ]
+      ]
+    },
+    {
+      "title": "1. Introduction",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          118.98203502880446,
+          473.0492915589531
+        ],
+        [
+          193.96061626973932,
+          473.0492915589531
+        ],
+        [
+          193.96061626973932,
+          481.3753791452599
+        ],
+        [
+          118.98203502880446,
+          481.3753791452599
+        ]
+      ]
+    },
+    {
+      "title": "k \u00ba - - - +++ ( ) abg ab ag bg a b g S , P P P P PPP 1",
+      "heading_level": 2,
+      "page_id": 1,
+      "polygon": [
+        [
+          226.40002247513127,
+          516.5549744423579
+        ],
+        [
+          436.6554330656346,
+          516.5549744423579
+        ],
+        [
+          436.6554330656346,
+          533.4696839082335
+        ],
+        [
+          226.40002247513127,
+          533.4696839082335
+        ]
+      ]
+    },
+    {
+      "title": "2. The photon detector",
+      "heading_level": 2,
+      "page_id": 2,
+      "polygon": [
+        [
+          118.64412454749831,
+          444.8831123818522
+        ],
+        [
+          230.49249385983927,
+          444.8831123818522
+        ],
+        [
+          230.49249385983927,
+          455.3469792132918
+        ],
+        [
+          118.64412454749831,
+          455.3469792132918
+        ]
+      ]
+    },
+    {
+      "title": "",
+      "heading_level": 2,
+      "page_id": 5,
+      "polygon": [
+        [
+          118.98203502880446,
+          60.2703727531307
+        ],
+        [
+          198.91663666222973,
+          60.2703727531307
+        ],
+        [
+          198.91663666222973,
+          68.67147013751233
+        ],
+        [
+          118.98203502880446,
+          68.67147013751233
+        ]
+      ]
+    },
+    {
+      "title": "Acknowledgments",
+      "heading_level": 2,
+      "page_id": 5,
+      "polygon": [
+        [
+          118.64412454749831,
+          402.5400813686073
+        ],
+        [
+          210.74350350794555,
+          402.5400813686073
+        ],
+        [
+          210.74350350794555,
+          413.0789579981218
+        ],
+        [
+          118.64412454749831,
+          413.0789579981218
+        ]
+      ]
+    },
+    {
+      "title": "ORCID iDs",
+      "heading_level": 2,
+      "page_id": 5,
+      "polygon": [
+        [
+          119.09467185590653,
+          495.739755476591
+        ],
+        [
+          175.71345027920634,
+          495.739755476591
+        ],
+        [
+          175.71345027920634,
+          503.3157450821494
+        ],
+        [
+          119.09467185590653,
+          503.3157450821494
+        ]
+      ]
+    },
+    {
+      "title": "References",
+      "heading_level": 2,
+      "page_id": 5,
+      "polygon": [
+        [
+          119.09467185590653,
+          549.3342562010613
+        ],
+        [
+          172.44698229324675,
+          549.3342562010613
+        ],
+        [
+          172.44698229324675,
+          556.9477507056571
+        ],
+        [
+          119.09467185590653,
+          556.9477507056571
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          3
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Text",
+          24
+        ],
+        [
+          "SectionHeader",
+          8
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Equation",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Text",
+          14
+        ],
+        [
+          "PageHeader",
+          4
+        ],
+        [
+          "Equation",
+          3
+        ],
+        [
+          "Table",
+          3
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Text",
+          16
+        ],
+        [
+          "Equation",
+          4
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Text",
+          5
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "PageHeader",
+          3
+        ],
+        [
+          "ListGroup",
+          1
+        ],
+        [
+          "PageFooter",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "conversions/issue-23/marker_base/document"
+}
