@@ -59,22 +59,26 @@ jobs:
           echo "LD_LIBRARY_PATH=$HOME/llama_bin:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Extract PDF URL and Download
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          PDF_URL=$(echo "${{ github.event.issue.body }}" | grep -oP 'https://github\.com/user-attachments/(files|assets)/[^)]+\.pdf' | head -n 1)
+          PDF_URL=$(echo "$ISSUE_BODY" | grep -oP 'https://github\.com/user-attachments/(files|assets)/[^)]+\.pdf' | head -n 1)
           if [ -z "$PDF_URL" ]; then exit 1; fi
           curl -L -o document.pdf "$PDF_URL"
 
       - name: Parse Slash Commands
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           # 1. Engine Routing
           ENGINE="marker"
-          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=vision"; then ENGINE="vision"; fi
-          if echo "${{ github.event.issue.body }}" | grep -iq "/engine=marker-llm"; then ENGINE="marker-llm"; fi
+          if echo "$ISSUE_BODY" | grep -iq "/engine=vision"; then ENGINE="vision"; fi
+          if echo "$ISSUE_BODY" | grep -iq "/engine=marker-llm"; then ENGINE="marker-llm"; fi
           echo "ENGINE=$ENGINE" >> $GITHUB_ENV
           echo "-> Engine: $ENGINE"
 
           # 2. OCR Mode Override
-          if echo "${{ github.event.issue.body }}" | grep -iq "/force-ocr"; then
+          if echo "$ISSUE_BODY" | grep -iq "/force-ocr"; then
             echo "OCR_ARG=--force_ocr" >> $GITHUB_ENV
             echo "-> OCR: Forced (Neural Vision OCR)"
           else
@@ -87,16 +91,16 @@ jobs:
           # Accepts: /footers=keep-simplified or /headers=keep-simplified -> "keep-simplified"
           # Default fallback: "remove"
           FOOTER_MODE="remove"
-          if echo "${{ github.event.issue.body }}" | grep -iEq "/(footers|headers)=(keep-simplified|simplified)"; then
+          if echo "$ISSUE_BODY" | grep -iEq "/(footers|headers)=(keep-simplified|simplified)"; then
             FOOTER_MODE="keep-simplified"
-          elif echo "${{ github.event.issue.body }}" | grep -iEq "/(footers|headers)=keep"; then
+          elif echo "$ISSUE_BODY" | grep -iEq "/(footers|headers)=keep"; then
             FOOTER_MODE="keep"
           fi
           echo "FOOTER_MODE=$FOOTER_MODE" >> $GITHUB_ENV
           echo "-> Footers/Headers Mode: $FOOTER_MODE"
 
           # 4. Page Range & File Suffix
-          PAGE_RANGE=$(echo "${{ github.event.issue.body }}" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
+          PAGE_RANGE=$(echo "$ISSUE_BODY" | grep -oP '/page-range(?:=|\s+)\K[\d-]+' | head -n 1)
           if [ -n "$PAGE_RANGE" ]; then
             FIRST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f1)
             LAST_PAGE=$(echo "$PAGE_RANGE" | cut -d'-' -f2)
@@ -117,13 +121,13 @@ jobs:
           fi
 
           # 5. Timeout Override
-          TIMEOUT_MINS=$(echo "${{ github.event.issue.body }}" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
+          TIMEOUT_MINS=$(echo "$ISSUE_BODY" | grep -oP '/timeout(?:=|\s+)\K\d+' | head -n 1)
           if [ -z "$TIMEOUT_MINS" ]; then TIMEOUT_MINS="120"; fi
           echo "TIMEOUT_MINUTES=$TIMEOUT_MINS" >> $GITHUB_ENV
           echo "-> Timeout: ${TIMEOUT_MINS}m"
 
           # 6. Model Override
-          CUSTOM_MODEL=$(echo "${{ github.event.issue.body }}" | grep -oP '/model(?:=|\s+)\K[^\s]+' | head -n 1)
+          CUSTOM_MODEL=$(echo "$ISSUE_BODY" | grep -oP '/model(?:=|\s+)\K[^\s]+' | head -n 1)
           echo "CUSTOM_MODEL=$CUSTOM_MODEL" >> $GITHUB_ENV
           if [ -n "$CUSTOM_MODEL" ]; then echo "-> Model Override: $CUSTOM_MODEL"; fi
 
